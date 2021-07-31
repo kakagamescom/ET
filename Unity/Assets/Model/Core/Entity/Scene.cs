@@ -2,21 +2,11 @@
 {
     public sealed class Scene: Entity
     {
-        public int Zone
-        {
-            get;
-        }
+        public int Zone { get; }
 
-        public SceneType SceneType
-        {
-            get;
-        }
+        public SceneType SceneType { get; }
 
-        public string Name
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
         public Scene(long instanceId, int zone, SceneType sceneType, string name)
         {
@@ -26,7 +16,7 @@
             this.SceneType = sceneType;
             this.Name = name;
             this.IsCreate = true;
-            
+
             Log.Info($"scene create: {this.SceneType} {this.Name} {this.Id} {this.InstanceId} {this.Zone}");
         }
 
@@ -38,14 +28,14 @@
             this.SceneType = sceneType;
             this.Name = name;
             this.IsCreate = true;
-            
+
             Log.Info($"scene create: {this.SceneType} {this.Name} {this.Id} {this.InstanceId} {this.Zone}");
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            
+
             Log.Info($"scene dispose: {this.SceneType} {this.Name} {this.Id} {this.InstanceId} {this.Zone}");
         }
 

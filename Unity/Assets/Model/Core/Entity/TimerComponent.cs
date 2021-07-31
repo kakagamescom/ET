@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace ET
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public enum TimerClass
     {
         None,

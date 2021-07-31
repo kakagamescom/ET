@@ -8,10 +8,11 @@ namespace ET
         public static ThreadSynchronizationContext ThreadSynchronizationContext => ThreadSynchronizationContext.Instance;
 
         public static TimeInfo TimeInfo => TimeInfo.Instance;
-        
+
         public static EventSystem EventSystem => EventSystem.Instance;
 
         private static Scene scene;
+
         public static Scene Scene
         {
             get
@@ -20,6 +21,7 @@ namespace ET
                 {
                     return scene;
                 }
+
                 scene = EntitySceneFactory.CreateScene(IdGenerater.Instance.GenerateInstanceId(), 0, SceneType.Process, "Process");
                 return scene;
             }
@@ -41,7 +43,7 @@ namespace ET
             TimeInfo.Update();
             EventSystem.Update();
         }
-        
+
         public static void LateUpdate()
         {
             EventSystem.LateUpdate();
@@ -53,6 +55,7 @@ namespace ET
             {
                 action.Invoke();
             }
+
             FrameFinishCallback.Clear();
         }
 
