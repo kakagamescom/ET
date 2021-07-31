@@ -17,7 +17,7 @@ namespace ET
 
             try
             {
-                Game.EventSystem.Add(typeof (Game).Assembly);
+                Game.EventSystem.Add(typeof(Game).Assembly);
                 Game.EventSystem.Add(DllHelper.GetHotfixAssembly());
 
                 ProtobufHelper.Init();
@@ -25,17 +25,20 @@ namespace ET
 
                 // 命令行参数
                 Options options = null;
-                Parser.Default.ParseArguments<Options>(args)
+                Parser.Default
+                        .ParseArguments<Options>(args)
                         .WithNotParsed(error => throw new Exception($"命令行格式错误!"))
                         .WithParsed(o => { options = o; });
 
                 Game.Options = options;
 
+                // logger
                 Game.ILog = new NLogger(Game.Options.AppType.ToString());
                 LogManager.Configuration.Variables["appIdFormat"] = $"{Game.Options.Process:000000}";
 
                 Log.Info($"server start........................ {Game.Scene.Id}");
 
+                // 启动
                 Game.EventSystem.Publish(new AppStart());
 
                 while (true)

@@ -1,5 +1,8 @@
 ﻿namespace ET
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class EntitySceneFactory
     {
         public static Scene CreateScene(long id, long instanceId, int zone, SceneType sceneType, string name, Entity parent = null)

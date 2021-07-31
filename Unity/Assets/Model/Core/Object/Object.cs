@@ -16,22 +16,19 @@ namespace ET
         public static GameObject Global => GameObject.Find("/Global");
 
         [BsonIgnore]
-        public GameObject ViewGO
-        {
-            get;
-        }
+        public GameObject ViewGO { get; }
 #endif
 
         public Object()
         {
 #if UNITY_EDITOR && VIEWGO
-            if (!this.GetType().IsDefined(typeof (HideInHierarchy), true) && Log.NeedLog)
+            if (!GetType().IsDefined(typeof (HideInHierarchy), true) && Log.NeedLog)
             {
-                this.ViewGO = new GameObject();
-                this.ViewGO.name = this.GetType().Name;
-                this.ViewGO.layer = LayerMask.NameToLayer("Hidden");
-                this.ViewGO.transform.SetParent(Global.transform, false);
-                this.ViewGO.AddComponent<ComponentView>().Component = this;
+                ViewGO = new GameObject();
+                ViewGO.name = GetType().Name;
+                ViewGO.layer = LayerMask.NameToLayer("Hidden");
+                ViewGO.transform.SetParent(Global.transform, false);
+                ViewGO.AddComponent<ComponentView>().Component = this;
             }
 #endif
         }
@@ -47,9 +44,9 @@ namespace ET
         public virtual void Dispose()
         {
 #if UNITY_EDITOR && VIEWGO
-            if (this.ViewGO != null)
+            if (ViewGO != null)
             {
-                UnityEngine.Object.Destroy(this.ViewGO);
+                UnityEngine.Object.Destroy(ViewGO);
             }
 #endif
         }

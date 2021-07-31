@@ -1,33 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ET
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class ETTaskHelper
     {
         private class CoroutineBlocker
         {
-            private int count;
+            private int _count;
 
-            private List<ETTask> tcss = new List<ETTask>();
+            private List<ETTask> _tcss = new List<ETTask>();
 
             public CoroutineBlocker(int count)
             {
-                this.count = count;
+                this._count = count;
             }
 
             public async ETTask WaitAsync()
             {
-                --this.count;
-                if (this.count < 0)
+                --this._count;
+                if (this._count < 0)
                 {
                     return;
                 }
 
-                if (this.count == 0)
+                if (this._count == 0)
                 {
-                    List<ETTask> t = this.tcss;
-                    this.tcss = null;
+                    List<ETTask> t = this._tcss;
+                    this._tcss = null;
                     foreach (ETTask ttcs in t)
                     {
                         ttcs.SetResult();
@@ -38,7 +40,7 @@ namespace ET
 
                 ETTask tcs = ETTask.Create(true);
 
-                tcss.Add(tcs);
+                this._tcss.Add(tcs);
                 await tcs;
             }
         }

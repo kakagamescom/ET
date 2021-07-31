@@ -22,6 +22,7 @@ namespace ET
                     redirectStandardError = false;
                     useShellExecute = true;
                 }
+
                 ProcessStartInfo info = new ProcessStartInfo
                 {
                     FileName = exe,
@@ -34,7 +35,7 @@ namespace ET
                 };
 
                 Process process = Process.Start(info);
-                
+
                 WaitExitAsync(process);
 
                 return process;
@@ -44,7 +45,7 @@ namespace ET
                 throw new Exception($"dir: {Path.GetFullPath(workingDirectory)}, command: {exe} {arguments}", e);
             }
         }
-        
+
         private static async void WaitExitAsync(Process process)
         {
             await process.WaitForExitAsync();
@@ -52,7 +53,7 @@ namespace ET
             Log.Info($"process exit, exitcode: {process.ExitCode} {process.StandardOutput.ReadToEnd()} {process.StandardError.ReadToEnd()}");
 #endif
         }
-        
+
 #if !NOT_UNITY
         private static async Task WaitForExitAsync(this Process self)
         {

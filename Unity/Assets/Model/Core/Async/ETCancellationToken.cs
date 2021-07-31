@@ -3,40 +3,43 @@ using System.Collections.Generic;
 
 namespace ET
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ETCancellationToken
     {
-        private HashSet<Action> actions = new HashSet<Action>();
+        private HashSet<Action> _actions = new HashSet<Action>();
 
         public void Add(Action callback)
         {
             // 如果action是null，绝对不能添加,要抛异常，说明有协程泄漏
-            this.actions.Add(callback);
+            _actions.Add(callback);
         }
-        
+
         public void Remove(Action callback)
         {
-            this.actions?.Remove(callback);
+            _actions?.Remove(callback);
         }
 
         public bool IsCancel()
         {
-            return this.actions == null;
+            return _actions == null;
         }
 
         public void Cancel()
         {
-            if (this.actions == null)
+            if (_actions == null)
             {
                 return;
             }
 
-            this.Invoke();
+            Invoke();
         }
 
         private void Invoke()
         {
-            HashSet<Action> runActions = this.actions;
-            this.actions = null;
+            HashSet<Action> runActions = _actions;
+            _actions = null;
             try
             {
                 foreach (Action action in runActions)
@@ -52,14 +55,14 @@ namespace ET
 
         public async ETVoid CancelAfter(long afterTimeCancel)
         {
-            if (this.actions == null)
+            if (_actions == null)
             {
                 return;
             }
 
             await TimerComponent.Instance.WaitAsync(afterTimeCancel);
-            
-            this.Invoke();
+
+            Invoke();
         }
     }
 }

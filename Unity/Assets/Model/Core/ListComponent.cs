@@ -1,36 +1,36 @@
-/**
- * 封装List，用于重用
- */
-
 using System.Collections.Generic;
 
 namespace ET
 {
+    /// <summary>
+    /// 封装List，用于重用
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ListComponent<T>: Object
     {
-        private bool isDispose;
-        
+        private bool _isDispose;
+
         public static ListComponent<T> Create()
         {
             ListComponent<T> listComponent = ObjectPool.Instance.Fetch<ListComponent<T>>();
-            listComponent.isDispose = false;
+            listComponent._isDispose = false;
             return listComponent;
         }
-        
+
         public List<T> List { get; } = new List<T>();
 
         public override void Dispose()
         {
-            if (this.isDispose)
+            if (this._isDispose)
             {
                 return;
             }
 
-            this.isDispose = true;
-            
+            _isDispose = true;
+
             base.Dispose();
-            
-            this.List.Clear();
+
+            List.Clear();
             ObjectPool.Instance.Recycle(this);
         }
     }
@@ -38,14 +38,14 @@ namespace ET
     public class ListComponentDisposeChildren<T>: Object where T : Object
     {
         private bool isDispose;
-        
+
         public static ListComponentDisposeChildren<T> Create()
         {
             ListComponentDisposeChildren<T> listComponent = ObjectPool.Instance.Fetch<ListComponentDisposeChildren<T>>();
             listComponent.isDispose = false;
             return listComponent;
         }
-        
+
         public List<T> List = new List<T>();
 
         public override void Dispose()
@@ -54,18 +54,18 @@ namespace ET
             {
                 return;
             }
-            
+
             this.isDispose = true;
 
             base.Dispose();
 
-            foreach (T entity in this.List)
+            foreach (T entity in List)
             {
                 entity.Dispose();
             }
 
-            this.List.Clear();
-            
+            List.Clear();
+
             ObjectPool.Instance.Recycle(this);
         }
     }

@@ -2,76 +2,78 @@
 
 namespace ET
 {
-	public class QueueDictionary<T, K>
-	{
-		private readonly List<T> list = new List<T>();
-		private readonly Dictionary<T, K> dictionary = new Dictionary<T, K>();
+    public class QueueDictionary<T, K>
+    {
+        private readonly List<T> _list = new List<T>();
+        
+        private readonly Dictionary<T, K> _dictionary = new Dictionary<T, K>();
 
-		public void Enqueue(T t, K k)
-		{
-			this.list.Add(t);
-			this.dictionary.Add(t, k);
-		}
+        public int Count
+        {
+            get
+            {
+                return _list.Count;
+            }
+        }
 
-		public void Dequeue()
-		{
-			if (this.list.Count == 0)
-			{
-				return;
-			}
-			T t = this.list[0];
-			this.list.RemoveAt(0);
-			this.dictionary.Remove(t);
-		}
+        public T FirstKey
+        {
+            get
+            {
+                return _list[0];
+            }
+        }
 
-		public void Remove(T t)
-		{
-			this.list.Remove(t);
-			this.dictionary.Remove(t);
-		}
+        public K FirstValue
+        {
+            get
+            {
+                T t = _list[0];
+                return this[t];
+            }
+        }
 
-		public bool ContainsKey(T t)
-		{
-			return this.dictionary.ContainsKey(t);
-		}
+        public K this[T t]
+        {
+            get
+            {
+                return _dictionary[t];
+            }
+        }
 
-		public int Count
-		{
-			get
-			{
-				return this.list.Count;
-			}
-		}
+        public void Enqueue(T t, K k)
+        {
+            _list.Add(t);
+            _dictionary.Add(t, k);
+        }
 
-		public T FirstKey
-		{
-			get
-			{
-				return this.list[0];
-			}
-		}
-		
-		public K FirstValue
-		{
-			get
-			{
-				T t = this.list[0];
-				return this[t];
-			}
-		}
+        public void Dequeue()
+        {
+            if (_list.Count == 0)
+            {
+                return;
+            }
 
-		public K this[T t]
-		{
-			get
-			{
-				return this.dictionary[t];
-			}
-		}
+            T t = _list[0];
+            _list.RemoveAt(0);
+            _dictionary.Remove(t);
+        }
 
-		public void Clear()
-		{
-			this.list.Clear();
-			this.dictionary.Clear();
-		}
-	}
+        public void Remove(T t)
+        {
+            _list.Remove(t);
+            _dictionary.Remove(t);
+        }
+
+        public bool ContainsKey(T t)
+        {
+            return _dictionary.ContainsKey(t);
+        }
+
+        public void Clear()
+        {
+            _list.Clear();
+            _dictionary.Clear();
+        }
+    }
 }

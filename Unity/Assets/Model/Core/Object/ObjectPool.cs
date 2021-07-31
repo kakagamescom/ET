@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace ET
 {
+    /// <summary>
+    /// 组件队列
+    /// </summary>
     public class ComponentQueue: Object
     {
         public string TypeName
@@ -46,6 +49,9 @@ namespace ET
         }
     }
 
+    /// <summary>
+    /// 对象池
+    /// </summary>
     public class ObjectPool: Object
     {
         private static ObjectPool instance;

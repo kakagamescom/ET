@@ -11,19 +11,19 @@ namespace ET
 
         public static EventSystem EventSystem => EventSystem.Instance;
 
-        private static Scene scene;
+        private static Scene _scene;
 
         public static Scene Scene
         {
             get
             {
-                if (scene != null)
+                if (_scene != null)
                 {
-                    return scene;
+                    return _scene;
                 }
 
-                scene = EntitySceneFactory.CreateScene(IdGenerater.Instance.GenerateInstanceId(), 0, SceneType.Process, "Process");
-                return scene;
+                _scene = EntitySceneFactory.CreateScene(IdGenerater.Instance.GenerateInstanceId(), 0, SceneType.Process, "Process");
+                return _scene;
             }
         }
 
@@ -61,8 +61,8 @@ namespace ET
 
         public static void Close()
         {
-            scene?.Dispose();
-            scene = null;
+            _scene?.Dispose();
+            _scene = null;
             ObjectPool.Instance.Dispose();
             EventSystem.Instance.Dispose();
             IdGenerater.Instance.Dispose();

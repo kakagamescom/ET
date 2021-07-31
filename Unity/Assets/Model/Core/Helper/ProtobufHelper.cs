@@ -4,6 +4,9 @@ using ProtoBuf;
 
 namespace ET
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class ProtobufHelper
     {
         static ProtobufHelper()
@@ -12,11 +15,12 @@ namespace ET
 
             foreach (Type type in types)
             {
-                if (type.GetCustomAttributes(typeof (ProtoContractAttribute), false).Length == 0)
+                if (type.GetCustomAttributes(typeof(ProtoContractAttribute), false).Length == 0)
                 {
                     continue;
                 }
-                if (!type.IsSubclassOf(typeof (ProtoObject)))
+
+                if (!type.IsSubclassOf(typeof(ProtoObject)))
                 {
                     continue;
                 }
@@ -28,7 +32,7 @@ namespace ET
         public static void Init()
         {
         }
-        
+
         public static object FromBytes(Type type, byte[] bytes, int index, int count)
         {
             using (MemoryStream stream = new MemoryStream(bytes, index, count))
@@ -36,7 +40,7 @@ namespace ET
                 return ProtoBuf.Serializer.Deserialize(type, stream);
             }
         }
-        
+
         public static byte[] ToBytes(object message)
         {
             using (MemoryStream stream = new MemoryStream())
@@ -45,7 +49,7 @@ namespace ET
                 return stream.ToArray();
             }
         }
-        
+
         public static void ToStream(object message, MemoryStream stream)
         {
             ProtoBuf.Serializer.Serialize(stream, message);
