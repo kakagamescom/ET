@@ -4,6 +4,9 @@ using MongoDB.Bson.IO;
 
 namespace ET
 {
+    /// <summary>
+    /// 网络消息序列化辅助工具类
+    /// </summary>
     public static class MessageSerializeHelper
     {
         public const ushort PbMaxOpcode = 40000;
@@ -76,7 +79,7 @@ namespace ET
             
             stream.GetBuffer().WriteTo(0, opcode);
             
-            MessageSerializeHelper.SerializeTo(opcode, message, stream);
+            SerializeTo(opcode, message, stream);
             
             stream.Seek(0, SeekOrigin.Begin);
             return (opcode, stream);
@@ -96,7 +99,7 @@ namespace ET
             stream.GetBuffer().WriteTo(0, actorId);
             stream.GetBuffer().WriteTo(actorSize, opcode);
             
-            MessageSerializeHelper.SerializeTo(opcode, message, stream);
+            SerializeTo(opcode, message, stream);
             
             stream.Seek(0, SeekOrigin.Begin);
             return (opcode, stream);

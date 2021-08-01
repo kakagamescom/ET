@@ -2,11 +2,14 @@ using System.Collections.Generic;
 
 namespace ET
 {
+    /// <summary>
+    /// 网络消息Id辅助工具类
+    /// </summary>
     public static class OpcodeHelper
     {
         private static readonly HashSet<ushort> ignoreDebugLogMessageSet = new HashSet<ushort>
         {
-            OuterOpcode.C2G_Ping,
+            OuterOpcode.C2G_Ping, 
             OuterOpcode.G2C_Ping,
         };
 
@@ -36,17 +39,17 @@ namespace ET
             {
                 return;
             }
-            
+
             Game.ILog.Debug("zone: {0} {1}", zone, message);
         }
-        
+
         public static void LogMsg(ushort opcode, long actorId, object message)
         {
             if (!IsNeedLogMessage(opcode))
             {
                 return;
             }
-            
+
             Game.ILog.Debug("actorId: {0} {1}", actorId, message);
         }
     }

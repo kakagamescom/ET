@@ -4,7 +4,7 @@
 namespace ET
 {
 	[MessageHandler]
-	public class C2M_ReloadHandler: AMRpcHandler<C2M_Reload, M2C_Reload>
+	public class C2M_ReloadHandler: BaseRpcMessageHandler<C2M_Reload, M2C_Reload>
 	{
 		protected override async ETTask Run(Session session, C2M_Reload request, M2C_Reload response, Action reply)
 		{

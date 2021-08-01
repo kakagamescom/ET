@@ -4,7 +4,7 @@
 namespace ET
 {
 	[MessageHandler]
-	public class C2G_EnterMapHandler : AMRpcHandler<C2G_EnterMap, G2C_EnterMap>
+	public class C2G_EnterMapHandler : BaseRpcMessageHandler<C2G_EnterMap, G2C_EnterMap>
 	{
 		protected override async ETTask Run(Session session, C2G_EnterMap request, G2C_EnterMap response, Action reply)
 		{

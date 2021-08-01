@@ -3,7 +3,7 @@ using System;
 namespace ET
 {
     [MessageHandler]
-    public abstract class AMRpcHandler<Request, Response>: IMessageHandler where Request : class, IRequest where Response : class, IResponse
+    public abstract class BaseRpcMessageHandler<Request, Response>: IMessageHandler where Request : class, IRequest where Response : class, IResponse
     {
         protected abstract ETTask Run(Session session, Request request, Response response, Action reply);
 

@@ -5,6 +5,9 @@ using System.Threading;
 
 namespace ET
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class NetThreadComponent: Entity
     {
         public static NetThreadComponent Instance;

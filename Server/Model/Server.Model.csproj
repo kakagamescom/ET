@@ -73,15 +73,6 @@
     <Compile Include="..\..\Unity\Assets\Model\Module\Message\OpcodeTypeComponent.cs" Link="Module\Message\OpcodeTypeComponent.cs" />
     <Compile Include="..\..\Unity\Assets\Model\Module\Message\RpcException.cs" Link="Module\Message\RpcException.cs" />
     <Compile Include="..\..\Unity\Assets\Model\Module\Message\Session.cs" Link="Module\Message\Session.cs" />
-    <Compile Include="..\..\Unity\Assets\Model\Module\NetworkTCP\PacketParser.cs">
-      <Link>Module\NetworkTCP\PacketParser.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Unity\Assets\Model\Module\NetworkTCP\TcpChannel.cs">
-      <Link>Module\NetworkTCP\TcpChannel.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Unity\Assets\Model\Module\NetworkTCP\TcpService.cs">
-      <Link>Module\NetworkTCP\TcpService.cs</Link>
-    </Compile>
     <Compile Include="..\..\Unity\Assets\Model\Module\Numeric\INumericWatcher.cs">
       <Link>Module\Numeric\INumericWatcher.cs</Link>
     </Compile>
@@ -122,8 +113,8 @@
       <Link>Module\Message\SessionIdleCheckerComponent.cs</Link>
     </Compile>
 
-    <Compile Include="..\..\Unity\Assets\Model\Module\Network\**\*.cs">
-      <Link>Module\Network\%(RecursiveDir)%(FileName)%(Extension)</Link>
+    <Compile Include="..\..\Unity\Assets\Model\Module\Net\**\*.cs">
+      <Link>Module\Net\%(RecursiveDir)%(FileName)%(Extension)</Link>
     </Compile>
   </ItemGroup>
   
