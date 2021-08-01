@@ -2,7 +2,7 @@
 
 namespace ET
 {
-    public class ChangeRotation_SyncGameObjectRotation: AEvent<EventType.ChangeRotation>
+    public class ChangeRotation_SyncGameObjectRotation: BaseEvent<EventType.ChangeRotation>
     {
         protected override async ETTask Run(EventType.ChangeRotation args)
         {

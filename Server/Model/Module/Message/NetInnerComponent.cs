@@ -20,9 +20,9 @@ namespace ET
 
     public class NetInnerComponent: Entity
     {
-        public NetService Service;
-
         public static NetInnerComponent Instance;
+        
+        public NetService NetService;
 
         public IMessageDispatcher MessageDispatcher { get; set; }
     }

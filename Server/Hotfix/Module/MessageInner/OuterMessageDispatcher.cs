@@ -10,22 +10,22 @@ namespace ET
     {
         public void Dispatch(Session session, MemoryStream memoryStream)
         {
-            ushort opcode = BitConverter.ToUInt16(memoryStream.GetBuffer(), Packet.KcpOpcodeIndex);
-            Type type = MsgIdTypeComponent.Instance.GetType(opcode);
-            object message = MessageSerializeHelper.DeserializeFrom(opcode, type, memoryStream);
+            ushort msgId = BitConverter.ToUInt16(memoryStream.GetBuffer(), Packet.KcpMsgIdIndex);
+            Type type = MsgIdTypeComponent.Instance.GetType(msgId);
+            object message = MessageSerializeHelper.Deserialize(msgId, type, memoryStream);
 
             if (message is IResponse response)
             {
-                session.OnRead(opcode, response);
+                session.OnRead(msgId, response);
                 return;
             }
 
-            MsgIdHelper.LogMsg(session.DomainZone(), opcode, message);
+            MsgIdHelper.LogMsg(session.DomainZone(), msgId, message);
 
-            DispatchAsync(session, opcode, message).Coroutine();
+            DispatchAsync(session, msgId, message).Coroutine();
         }
 
-        public async ETVoid DispatchAsync(Session session, ushort opcode, object message)
+        public async ETVoid DispatchAsync(Session session, ushort msgId, object message)
         {
             // 根据消息接口判断是不是Actor消息，不同的接口做不同的处理
             switch (message)
@@ -63,7 +63,7 @@ namespace ET
                 default:
                 {
                     // 非Actor消息
-                    MessageDispatcherComponent.Instance.Handle(session, opcode, message);
+                    MessageDispatcherComponent.Instance.Handle(session, msgId, message);
                     break;
                 }
             }

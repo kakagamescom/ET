@@ -19,7 +19,7 @@ namespace ET
                 Request request = message as Request;
                 if (request == null)
                 {
-                    Log.Error($"消息类型转换错误: {message.GetType().Name} to {typeof (Request).Name}");
+                    Log.Error($"message convert failed: {message.GetType().Name} to {typeof (Request).Name}");
                 }
 
                 int rpcId = request.RpcId;
@@ -54,7 +54,7 @@ namespace ET
             }
             catch (Exception e)
             {
-                throw new Exception($"解释消息失败: {message.GetType().FullName}", e);
+                throw new Exception($"parse message failed: {message.GetType().FullName}", e);
             }
         }
 

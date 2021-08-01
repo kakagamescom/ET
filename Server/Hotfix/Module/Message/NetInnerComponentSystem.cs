@@ -14,11 +14,11 @@ namespace ET
             NetInnerComponent.Instance = self;
             self.MessageDispatcher = new InnerMessageDispatcher();
             
-            self.Service = new TcpService(NetThreadComponent.Instance.ThreadSyncContext, NetServiceType.Inner);
-            self.Service.ErrorCallback += self.OnError;
-            self.Service.ReadCallback += self.OnRead;
+            self.NetService = new TcpService(NetThreadComponent.Instance.ThreadSyncContext, NetServiceType.Inner);
+            self.NetService.ErrorCallback += self.OnError;
+            self.NetService.ReadCallback += self.OnRead;
 
-            NetThreadComponent.Instance.Add(self.Service);
+            NetThreadComponent.Instance.Add(self.NetService);
         }
     }
 
@@ -30,12 +30,12 @@ namespace ET
             NetInnerComponent.Instance = self;
             self.MessageDispatcher = new InnerMessageDispatcher();
 
-            self.Service = new TcpService(NetThreadComponent.Instance.ThreadSyncContext, address, NetServiceType.Inner);
-            self.Service.ErrorCallback += self.OnError;
-            self.Service.ReadCallback += self.OnRead;
-            self.Service.AcceptCallback += self.OnAccept;
+            self.NetService = new TcpService(NetThreadComponent.Instance.ThreadSyncContext, address, NetServiceType.Inner);
+            self.NetService.ErrorCallback += self.OnError;
+            self.NetService.ReadCallback += self.OnRead;
+            self.NetService.AcceptCallback += self.OnAccept;
 
-            NetThreadComponent.Instance.Add(self.Service);
+            NetThreadComponent.Instance.Add(self.NetService);
         }
     }
 
@@ -53,8 +53,8 @@ namespace ET
     {
         public override void Destroy(NetInnerComponent self)
         {
-            NetThreadComponent.Instance.Remove(self.Service);
-            self.Service.Destroy();
+            NetThreadComponent.Instance.Remove(self.NetService);
+            self.NetService.Destroy();
         }
     }
 
@@ -87,7 +87,7 @@ namespace ET
         // 这个channelId是由CreateAcceptChannelId生成的
         public static void OnAccept(this NetInnerComponent self, long channelId, IPEndPoint ipEndPoint)
         {
-            Session session = EntityFactory.CreateWithParentAndId<Session, NetService>(self, channelId, self.Service);
+            Session session = EntityFactory.CreateWithParentAndId<Session, NetService>(self, channelId, self.NetService);
             session.RemoteAddress = ipEndPoint;
             //session.AddComponent<SessionIdleCheckerComponent, int, int, int>(NetThreadComponent.checkInteral, NetThreadComponent.recvMaxIdleTime, NetThreadComponent.sendMaxIdleTime);
         }
@@ -95,19 +95,19 @@ namespace ET
         // 这个channelId是由CreateConnectChannelId生成的
         public static Session Create(this NetInnerComponent self, IPEndPoint ipEndPoint)
         {
-            uint localConn = self.Service.CreateRandomLocalConn();
-            long channelId = self.Service.CreateConnectChannelId(localConn);
+            uint localConn = self.NetService.CreateRandomLocalConn();
+            long channelId = self.NetService.CreateConnectChannelId(localConn);
             Session session = self.CreateInner(channelId, ipEndPoint);
             return session;
         }
 
         private static Session CreateInner(this NetInnerComponent self, long channelId, IPEndPoint ipEndPoint)
         {
-            Session session = EntityFactory.CreateWithParentAndId<Session, NetService>(self, channelId, self.Service);
+            Session session = EntityFactory.CreateWithParentAndId<Session, NetService>(self, channelId, self.NetService);
 
             session.RemoteAddress = ipEndPoint;
 
-            self.Service.GetOrCreate(channelId, ipEndPoint);
+            self.NetService.GetOrCreate(channelId, ipEndPoint);
 
             //session.AddComponent<InnerPingComponent>();
             //session.AddComponent<SessionIdleCheckerComponent, int, int, int>(NetThreadComponent.checkInteral, NetThreadComponent.recvMaxIdleTime, NetThreadComponent.sendMaxIdleTime);

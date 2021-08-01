@@ -2,7 +2,7 @@
 
 namespace ET
 {
-	public class AppStartInitFinish_RemoveLoginUI: AEvent<EventType.AppStartInitFinish>
+	public class AppStartInitFinish_RemoveLoginUI: BaseEvent<EventType.AppStartInitFinish>
 	{
 		protected override async ETTask Run(EventType.AppStartInitFinish args)
 		{

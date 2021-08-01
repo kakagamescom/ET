@@ -37,12 +37,12 @@ namespace ET
 
     public class ListComponentDisposeChildren<T>: Object where T : Object
     {
-        private bool isDispose;
+        private bool _isDispose;
 
         public static ListComponentDisposeChildren<T> Create()
         {
             ListComponentDisposeChildren<T> listComponent = ObjectPool.Instance.Fetch<ListComponentDisposeChildren<T>>();
-            listComponent.isDispose = false;
+            listComponent._isDispose = false;
             return listComponent;
         }
 
@@ -50,12 +50,12 @@ namespace ET
 
         public override void Dispose()
         {
-            if (this.isDispose)
+            if (this._isDispose)
             {
                 return;
             }
 
-            this.isDispose = true;
+            this._isDispose = true;
 
             base.Dispose();
 

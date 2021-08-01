@@ -16,15 +16,15 @@ namespace ET
         
         public static object ToActorMessage(this MemoryStream memoryStream)
         {
-            ushort opcode = BitConverter.ToUInt16(memoryStream.GetBuffer(), 8);
-            Type type = MsgIdTypeComponent.Instance.GetType(opcode);
+            ushort msgId = BitConverter.ToUInt16(memoryStream.GetBuffer(), 8);
+            Type type = MsgIdTypeComponent.Instance.GetType(msgId);
 
-            if (opcode < MessageSerializeHelper.PbMaxOpcode)
+            if (msgId < MessageSerializeHelper.PbMaxOpcode)
             {
                 return ProtobufHelper.FromBytes(type, memoryStream.GetBuffer(), 10, (int)memoryStream.Length - 10);
             }
             
-            if (opcode >= MessageSerializeHelper.JsonMinOpcode)
+            if (msgId >= MessageSerializeHelper.JsonMinOpcode)
             {
                 return JsonHelper.FromJson(type, memoryStream.GetBuffer().ToStr(10, (int)(memoryStream.Length - 10)));
             }

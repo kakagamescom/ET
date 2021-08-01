@@ -33,65 +33,82 @@ namespace ET
     }
 
     /// <summary>
-    /// 消息分发组件
+    /// 消息分发组件扩展
     /// </summary>
-    public static class MessageDispatcherComponentHelper
+    public static class MessageDispatcherComponentExtension
     {
         public static void Load(this MessageDispatcherComponent self)
         {
             self.Handlers.Clear();
 
-            HashSet<Type> types = Game.EventSystem.GetTypes(typeof (MessageHandlerAttribute));
-
+            // 为所有使用MessageHandler标签标记的类型创建处理器
+            HashSet<Type> types = Game.EventSystem.GetTypes(typeof(MessageHandlerAttribute));
             foreach (Type type in types)
             {
-                IMessageHandler iMHandler = Activator.CreateInstance(type) as IMessageHandler;
-                if (iMHandler == null)
+                // 创建消息处理器
+                IMessageHandler messageHandler = Activator.CreateInstance(type) as IMessageHandler;
+                if (messageHandler == null)
                 {
-                    Log.Error($"message handle {type.Name} 需要继承 IMHandler");
+                    Log.Error($"message handle {type.Name} must inhert from IMessageHandler");
                     continue;
                 }
 
-                Type messageType = iMHandler.GetMessageType();
-                ushort opcode = MsgIdTypeComponent.Instance.GetOpcode(messageType);
-                if (opcode == 0)
+                // 获取消息Id
+                Type messageType = messageHandler.GetMessageType();
+                ushort msgId = MsgIdTypeComponent.Instance.GetMsgId(messageType);
+                if (msgId == 0)
                 {
-                    Log.Error($"消息opcode为0: {messageType.Name}");
+                    Log.Error($"msg id cannot be 0: {messageType.Name}");
                     continue;
                 }
 
-                self.RegisterHandler(opcode, iMHandler);
+                // 注册消息处理器
+                self.RegisterHandler(msgId, messageHandler);
             }
         }
 
-        public static void RegisterHandler(this MessageDispatcherComponent self, ushort opcode, IMessageHandler handler)
+        /// <summary>
+        /// 注册消息处理器
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="msgId"></param>
+        /// <param name="handler"></param>
+        public static void RegisterHandler(this MessageDispatcherComponent self, ushort msgId, IMessageHandler handler)
         {
-            if (!self.Handlers.ContainsKey(opcode))
+            if (!self.Handlers.ContainsKey(msgId))
             {
-                self.Handlers.Add(opcode, new List<IMessageHandler>());
+                self.Handlers.Add(msgId, new List<IMessageHandler>());
             }
 
-            self.Handlers[opcode].Add(handler);
+            self.Handlers[msgId].Add(handler);
         }
 
-        public static void Handle(this MessageDispatcherComponent self, Session session, ushort opcode, object message)
+        /// <summary>
+        /// 处理消息
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="session"></param>
+        /// <param name="msgId"></param>
+        /// <param name="message"></param>
+        public static void Handle(this MessageDispatcherComponent self, Session session, ushort msgId, object message)
         {
-            List<IMessageHandler> actions;
-            if (!self.Handlers.TryGetValue(opcode, out actions))
+            // 获取处理器
+            if (!self.Handlers.TryGetValue(msgId, out List<IMessageHandler> actions))
             {
-                Log.Error($"消息没有处理: {opcode} {message}");
+                Log.Error($"message not handle: {msgId} {message}");
                 return;
             }
 
-            foreach (IMessageHandler ev in actions)
+            // 处理消息
+            foreach (IMessageHandler messageHandler in actions)
             {
                 try
                 {
-                    ev.Handle(session, message);
+                    messageHandler.Handle(session, message);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Log.Error(e);
+                    Log.Error(ex);
                 }
             }
         }

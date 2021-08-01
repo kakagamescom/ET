@@ -3,6 +3,9 @@ using System.IO;
 
 namespace ET
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class OuterMessageDispatcher: IMessageDispatcher
     {
         // 查找卡死问题临时处理
@@ -11,9 +14,9 @@ namespace ET
         
         public void Dispatch(Session session, MemoryStream memoryStream)
         {
-            ushort opcode = BitConverter.ToUInt16(memoryStream.GetBuffer(), Packet.KcpOpcodeIndex);
-            Type type = MsgIdTypeComponent.Instance.GetType(opcode);
-            object message = MessageSerializeHelper.DeserializeFrom(opcode, type, memoryStream);
+            ushort msgId = BitConverter.ToUInt16(memoryStream.GetBuffer(), Packet.KcpMsgIdIndex);
+            Type type = MsgIdTypeComponent.Instance.GetType(msgId);
+            object message = MessageSerializeHelper.Deserialize(msgId, type, memoryStream);
 
             if (TimeHelper.ClientFrameTime() - this.lastMessageTime > 3000)
             {
@@ -25,13 +28,13 @@ namespace ET
             
             if (message is IResponse response)
             {
-                session.OnRead(opcode, response);
+                session.OnRead(msgId, response);
                 return;
             }
 
-            MsgIdHelper.LogMsg(session.DomainZone(), opcode, message);
+            MsgIdHelper.LogMsg(session.DomainZone(), msgId, message);
             // 普通消息或者是Rpc请求消息
-            MessageDispatcherComponent.Instance.Handle(session, opcode, message);
+            MessageDispatcherComponent.Instance.Handle(session, msgId, message);
         }
     }
 }

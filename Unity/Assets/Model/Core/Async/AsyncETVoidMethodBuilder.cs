@@ -5,9 +5,15 @@ using System.Security;
 
 namespace ET
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public struct AsyncETVoidMethodBuilder
     {
-        // 1. Static Create method.
+        /// <summary>
+        /// 静态创建方法
+        /// </summary>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [DebuggerHidden]
         public static AsyncETVoidMethodBuilder Create()
@@ -16,6 +22,9 @@ namespace ET
             return builder;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         // 2. TaskLike Task property(void)
         [DebuggerHidden]
         public ETVoid Task => default;

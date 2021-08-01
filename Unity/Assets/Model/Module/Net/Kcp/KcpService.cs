@@ -182,9 +182,7 @@ namespace ET
         private void Recv()
         {
             if (_socket == null)
-            {
                 return;
-            }
 
             while (_socket != null && _socket.Available > 0)
             {
@@ -335,7 +333,7 @@ namespace ET
                                 break;
                             }
 
-                            // 处理chanel
+                            // 处理channel
                             remoteConn = BitConverter.ToUInt32(_cache, 1);
                             localConn = BitConverter.ToUInt32(_cache, 5);
 
@@ -366,15 +364,13 @@ namespace ET
 
         public KcpChannel Get(long id)
         {
-            KcpChannel channel;
-            _idChannels.TryGetValue(id, out channel);
+            _idChannels.TryGetValue(id, out KcpChannel channel);
             return channel;
         }
 
         private KcpChannel GetByLocalConn(uint localConn)
         {
-            KcpChannel channel;
-            _localConnChannels.TryGetValue(localConn, out channel);
+            _localConnChannels.TryGetValue(localConn, out KcpChannel channel);
             return channel;
         }
 
@@ -477,22 +473,20 @@ namespace ET
 
         public override void Update()
         {
+            // 接收数据
             Recv();
 
+            // 
             TimerOut();
 
             foreach (long id in _updateChannels)
             {
                 KcpChannel kcpChannel = Get(id);
                 if (kcpChannel == null)
-                {
                     continue;
-                }
 
                 if (kcpChannel.ChannelId == 0)
-                {
                     continue;
-                }
 
                 kcpChannel.Update();
             }
@@ -535,20 +529,18 @@ namespace ET
             }
         }
 
-        // 计算到期需要update的channel
+        /// <summary>
+        /// 计算到期需要update的channel
+        /// </summary>
         private void TimerOut()
         {
             if (_timeId.Count == 0)
-            {
                 return;
-            }
 
             uint timeNow = TimeNow;
 
             if (timeNow < _minTime)
-            {
                 return;
-            }
 
             _timeoutTime.Clear();
 

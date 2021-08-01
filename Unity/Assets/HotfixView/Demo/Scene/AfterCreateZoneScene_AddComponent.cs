@@ -1,6 +1,6 @@
 namespace ET
 {
-    public class AfterCreateZoneScene_AddComponent: AEvent<EventType.AfterCreateZoneScene>
+    public class AfterCreateZoneScene_AddComponent: BaseEvent<EventType.AfterCreateZoneScene>
     {
         protected override async ETTask Run(EventType.AfterCreateZoneScene args)
         {

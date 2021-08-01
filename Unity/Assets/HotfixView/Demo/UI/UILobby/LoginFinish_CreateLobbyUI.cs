@@ -2,7 +2,7 @@
 
 namespace ET
 {
-	public class LoginFinish_CreateLobbyUI: AEvent<EventType.LoginFinish>
+	public class LoginFinish_CreateLobbyUI: BaseEvent<EventType.LoginFinish>
 	{
 		protected override async ETTask Run(EventType.LoginFinish args)
 		{

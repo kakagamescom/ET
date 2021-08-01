@@ -4,12 +4,12 @@ namespace ET
 {
     public class HashSetComponent<T>: Object
     {
-        private bool isDispose;
+        private bool _isDispose;
         
         public static HashSetComponent<T> Create()
         {
             HashSetComponent<T> hashSetComponent = ObjectPool.Instance.Fetch<HashSetComponent<T>>();
-            hashSetComponent.isDispose = false;
+            hashSetComponent._isDispose = false;
             return hashSetComponent;
         }
         
@@ -17,16 +17,14 @@ namespace ET
 
         public override void Dispose()
         {
-            if (this.isDispose)
-            {
+            if (_isDispose)
                 return;
-            }
 
-            this.isDispose = true;
+            _isDispose = true;
             
             base.Dispose();
             
-            this.Set.Clear();
+            Set.Clear();
             ObjectPool.Instance.Recycle(this);
         }
     }

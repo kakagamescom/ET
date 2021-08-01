@@ -115,7 +115,7 @@ namespace ET
             }
             else
             {
-                memoryStream.Seek(Packet.OpcodeLength, SeekOrigin.Begin);
+                memoryStream.Seek(Packet.MsgIdLength, SeekOrigin.Begin);
             }
 
             _state = ParserState.PacketSize;

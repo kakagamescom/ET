@@ -11,14 +11,10 @@ namespace ET
         public const int Cancel = 2;
         public const int Timeout = 3;
     }
-    
+
     public interface IWaitType
     {
-        int Error
-        {
-            get;
-            set;
-        }
+        int Error { get; set; }
     }
 
     [ObjectSystem]
@@ -37,7 +33,7 @@ namespace ET
         {
             foreach (object v in self.tcss.Values.ToArray())
             {
-                ((ObjectWait.IDestroyRun) v).SetResult();
+                ((ObjectWait.IDestroyRun)v).SetResult();
             }
         }
     }
@@ -58,7 +54,7 @@ namespace ET
             {
                 this.tcs = ETTask<K>.Create(true);
             }
-            
+
             public ResultCallback(long timer)
             {
                 this.timer = timer;
@@ -85,7 +81,7 @@ namespace ET
         public async ETTask<T> Wait<T>(ETCancellationToken cancellationToken = null) where T : struct, IWaitType
         {
             ResultCallback<T> tcs = new ResultCallback<T>();
-            Type type = typeof (T);
+            Type type = typeof(T);
             this.tcss.Add(type, tcs);
 
             void CancelAction()
@@ -101,26 +97,25 @@ namespace ET
             }
             finally
             {
-                cancellationToken?.Remove(CancelAction);    
+                cancellationToken?.Remove(CancelAction);
             }
+
             return ret;
         }
 
         public async ETTask<T> Wait<T>(int timeout, ETCancellationToken cancellationToken = null) where T : struct, IWaitType
         {
-            long timerId = TimerComponent.Instance.NewOnceTimer(TimeHelper.ServerNow() + timeout, () =>
-            {
-                Notify(new T() { Error = WaitTypeError.Timeout });
-            });
-            
+            long timerId = TimerComponent.Instance.NewOnceTimer(TimeHelper.ServerNow() + timeout,
+                () => { Notify(new T() { Error = WaitTypeError.Timeout }); });
+
             ResultCallback<T> tcs = new ResultCallback<T>(timerId);
-            this.tcss.Add(typeof (T), tcs);
-            
+            this.tcss.Add(typeof(T), tcs);
+
             void CancelAction()
             {
                 Notify(new T() { Error = WaitTypeError.Cancel });
             }
-            
+
             T ret;
             try
             {
@@ -129,21 +124,22 @@ namespace ET
             }
             finally
             {
-                cancellationToken?.Remove(CancelAction);    
+                cancellationToken?.Remove(CancelAction);
             }
+
             return ret;
         }
 
         public void Notify<T>(T obj) where T : struct, IWaitType
         {
-            Type type = typeof (T);
+            Type type = typeof(T);
             if (!this.tcss.TryGetValue(type, out object tcs))
             {
                 return;
             }
 
             this.tcss.Remove(type);
-            ((ResultCallback<T>) tcs).SetResult(obj);
+            ((ResultCallback<T>)tcs).SetResult(obj);
         }
     }
 }

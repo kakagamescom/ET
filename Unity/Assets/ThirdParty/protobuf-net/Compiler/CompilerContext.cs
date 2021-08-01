@@ -297,7 +297,7 @@ namespace ProtoBuf.Compiler
         private void Emit(OpCode opcode)
         {
             il.Emit(opcode);
-            TraceCompile(opcode.ToString());
+            TraceCompile(msgId.ToString());
         }
 
         public void LoadValue(string value)

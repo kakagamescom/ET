@@ -11,16 +11,16 @@ namespace ET
     {
         public void Dispatch(Session session, MemoryStream memoryStream)
         {
-            ushort opcode = 0;
+            ushort msgId = 0;
             try
             {
                 long actorId = BitConverter.ToInt64(memoryStream.GetBuffer(), Packet.ActorIdIndex);
-                opcode = BitConverter.ToUInt16(memoryStream.GetBuffer(), Packet.OpcodeIndex);
+                msgId = BitConverter.ToUInt16(memoryStream.GetBuffer(), Packet.MsgIdIndex);
                 Type type = null;
                 object message = null;
 #if SERVER
                 // 内网收到外网消息，有可能是gateUnit消息，还有可能是gate广播消息
-                if (MsgIdTypeComponent.Instance.IsOutrActorMessage(opcode))
+                if (MsgIdTypeComponent.Instance.IsOuterActorMessage(msgId))
                 {
                     InstanceIdStruct instanceIdStruct = new InstanceIdStruct(actorId);
                     instanceIdStruct.Process = Game.Options.Process;
@@ -29,32 +29,32 @@ namespace ET
                     Entity entity = Game.EventSystem.Get(realActorId);
                     if (entity == null)
                     {
-                        type = MsgIdTypeComponent.Instance.GetType(opcode);
-                        message = MessageSerializeHelper.DeserializeFrom(opcode, type, memoryStream);
-                        Log.Error($"not found actor: {session.DomainScene().Name}  {opcode} {realActorId} {message}");
+                        type = MsgIdTypeComponent.Instance.GetType(msgId);
+                        message = MessageSerializeHelper.Deserialize(msgId, type, memoryStream);
+                        Log.Error($"not found actor: {session.DomainScene().Name}  {msgId} {realActorId} {message}");
                         return;
                     }
 
                     if (entity is Session gateSession)
                     {
                         // 发送给客户端
-                        memoryStream.Seek(Packet.OpcodeIndex, SeekOrigin.Begin);
+                        memoryStream.Seek(Packet.MsgIdIndex, SeekOrigin.Begin);
                         gateSession.Send(0, memoryStream);
                         return;
                     }
                 }
 #endif
 
-                type = MsgIdTypeComponent.Instance.GetType(opcode);
-                message = MessageSerializeHelper.DeserializeFrom(opcode, type, memoryStream);
+                type = MsgIdTypeComponent.Instance.GetType(msgId);
+                message = MessageSerializeHelper.Deserialize(msgId, type, memoryStream);
 
                 if (message is IResponse iResponse && !(message is IActorResponse))
                 {
-                    session.OnRead(opcode, iResponse);
+                    session.OnRead(msgId, iResponse);
                     return;
                 }
 
-                MsgIdHelper.LogMsg(session.DomainZone(), opcode, message);
+                MsgIdHelper.LogMsg(session.DomainZone(), msgId, message);
 
                 // 收到actor消息,放入actor队列
                 switch (message)
@@ -73,7 +73,7 @@ namespace ET
                             replySession.Send(realActorId, response);
                         }
 
-                        InnerMessageDispatcherHelper.HandleIActorRequest(opcode, realActorId, iActorRequest, Reply);
+                        InnerMessageDispatcherHelper.HandleIActorRequest(msgId, realActorId, iActorRequest, Reply);
                         return;
                     }
                     case IActorResponse iActorResponse:
@@ -81,7 +81,7 @@ namespace ET
                         InstanceIdStruct instanceIdStruct = new InstanceIdStruct(actorId);
                         instanceIdStruct.Process = Game.Options.Process;
                         long realActorId = instanceIdStruct.ToLong();
-                        InnerMessageDispatcherHelper.HandleIActorResponse(opcode, realActorId, iActorResponse);
+                        InnerMessageDispatcherHelper.HandleIActorResponse(msgId, realActorId, iActorResponse);
                         return;
                     }
                     case IActorMessage iactorMessage:
@@ -89,19 +89,19 @@ namespace ET
                         InstanceIdStruct instanceIdStruct = new InstanceIdStruct(actorId);
                         instanceIdStruct.Process = Game.Options.Process;
                         long realActorId = instanceIdStruct.ToLong();
-                        InnerMessageDispatcherHelper.HandleIActorMessage(opcode, realActorId, iactorMessage);
+                        InnerMessageDispatcherHelper.HandleIActorMessage(msgId, realActorId, iactorMessage);
                         return;
                     }
                     default:
                     {
-                        MessageDispatcherComponent.Instance.Handle(session, opcode, message);
+                        MessageDispatcherComponent.Instance.Handle(session, msgId, message);
                         break;
                     }
                 }
             }
             catch (Exception e)
             {
-                Log.Error($"InnerMessageDispatcher error: {opcode}\n{e}");
+                Log.Error($"InnerMessageDispatcher error: {msgId}\n{e}");
             }
         }
     }

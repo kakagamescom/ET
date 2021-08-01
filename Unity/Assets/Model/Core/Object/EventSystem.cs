@@ -59,19 +59,28 @@ namespace ET
             Add(typeof(EventSystem).Assembly);
         }
 
+        /// <summary>
+        /// 添加程序集
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <exception cref="Exception"></exception>
         public void Add(Assembly assembly)
         {
             _assemblies[assembly.ManifestModule.ScopeName] = assembly;
+            
+            //
             _types.Clear();
             foreach (Assembly value in _assemblies.Values)
             {
                 foreach (Type type in value.GetTypes())
                 {
+                    // 跳过抽象类
                     if (type.IsAbstract)
                     {
                         continue;
                     }
 
+                    // 获取自定义特性类型
                     object[] objects = type.GetCustomAttributes(typeof(BaseAttribute), true);
                     if (objects.Length == 0)
                     {
@@ -84,7 +93,8 @@ namespace ET
                     }
                 }
             }
-
+            
+            //
             _awakeSystems.Clear();
             _lateUpdateSystems.Clear();
             _updateSystems.Clear();
@@ -93,7 +103,6 @@ namespace ET
             _changeSystems.Clear();
             _destroySystems.Clear();
             _deserializeSystems.Clear();
-
             foreach (Type type in GetTypes(typeof(ObjectSystemAttribute)))
             {
                 object obj = Activator.CreateInstance(type);
@@ -126,6 +135,7 @@ namespace ET
                 }
             }
 
+            // 注册所有事件处理器
             _allEvents.Clear();
             foreach (Type type in _types[typeof(EventAttribute)])
             {
@@ -144,6 +154,7 @@ namespace ET
                 _allEvents[eventType].Add(obj);
             }
 
+            // 
             Load();
         }
 
@@ -635,7 +646,7 @@ namespace ET
             
             foreach (object obj in iEvents)
             {
-                if (!(obj is AEvent<T> aEvent))
+                if (!(obj is BaseEvent<T> aEvent))
                 {
                     Log.Error($"event error: {obj.GetType().Name}");
                     continue;

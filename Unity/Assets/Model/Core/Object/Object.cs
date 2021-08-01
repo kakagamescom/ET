@@ -10,6 +10,9 @@ using UnityEngine;
 
 namespace ET
 {
+    /// <summary>
+    /// 对象
+    /// </summary>
     public abstract class Object: ISupportInitialize, IDisposable
     {
 #if UNITY_EDITOR && VIEWGO

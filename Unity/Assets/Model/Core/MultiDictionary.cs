@@ -6,14 +6,14 @@ namespace ET
     {
         public bool TryGetDic(T t, out Dictionary<M, N> k)
         {
-            return this.TryGetValue(t, out k);
+            return TryGetValue(t, out k);
         }
 
         public bool TryGetValue(T t, M m, out N n)
         {
             n = default;
 
-            if (!this.TryGetValue(t, out Dictionary<M, N> dic))
+            if (!TryGetValue(t, out Dictionary<M, N> dic))
             {
                 return false;
             }
@@ -24,7 +24,7 @@ namespace ET
         public void Add(T t, M m, N n)
         {
             Dictionary<M, N> kSet;
-            this.TryGetValue(t, out kSet);
+            TryGetValue(t, out kSet);
             if (kSet == null)
             {
                 kSet = new Dictionary<M, N>();
@@ -36,7 +36,7 @@ namespace ET
 
         public bool Remove(T t, M m)
         {
-            this.TryGetValue(t, out Dictionary<M, N> dic);
+            TryGetValue(t, out Dictionary<M, N> dic);
             if (dic == null || !dic.Remove(m))
             {
                 return false;
@@ -44,7 +44,7 @@ namespace ET
 
             if (dic.Count == 0)
             {
-                this.Remove(t);
+                Remove(t);
             }
 
             return true;
@@ -52,7 +52,7 @@ namespace ET
 
         public bool ContainSubKey(T t, M m)
         {
-            this.TryGetValue(t, out Dictionary<M, N> dic);
+            TryGetValue(t, out Dictionary<M, N> dic);
             if (dic == null)
             {
                 return false;
@@ -63,7 +63,7 @@ namespace ET
 
         public bool ContainValue(T t, M m, N n)
         {
-            this.TryGetValue(t, out Dictionary<M, N> dic);
+            TryGetValue(t, out Dictionary<M, N> dic);
             if (dic == null)
             {
                 return false;

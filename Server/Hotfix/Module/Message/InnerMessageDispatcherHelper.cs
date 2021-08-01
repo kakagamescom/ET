@@ -5,12 +5,12 @@ namespace ET
 {
     public static class InnerMessageDispatcherHelper
     {
-        public static void HandleIActorResponse(ushort opcode, long actorId, IActorResponse iActorResponse)
+        public static void HandleIActorResponse(ushort msgId, long actorId, IActorResponse iActorResponse)
         {
             ActorMessageSenderComponent.Instance.RunMessage(actorId, iActorResponse);
         }
 
-        public static void HandleIActorRequest(ushort opcode, long actorId, IActorRequest iActorRequest, Action<IActorResponse> reply)
+        public static void HandleIActorRequest(ushort msgId, long actorId, IActorRequest iActorRequest, Action<IActorResponse> reply)
         {
             Entity entity = Game.EventSystem.Get(actorId);
             if (entity == null)
@@ -63,9 +63,9 @@ namespace ET
         }
 
 
-        public static void HandleIActorMessage(ushort opcode, long actorId, IActorMessage iActorMessage)
+        public static void HandleIActorMessage(ushort msgId, long actorId, IActorMessage iActorMessage)
         {
-            MsgIdHelper.LogMsg(opcode, actorId, iActorMessage);
+            MsgIdHelper.LogMsg(msgId, actorId, iActorMessage);
 
             Entity entity = Game.EventSystem.Get(actorId);
             if (entity == null)

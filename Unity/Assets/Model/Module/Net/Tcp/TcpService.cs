@@ -74,8 +74,8 @@ namespace ET
 
             try
             {
-                long id = CreateAcceptChannelId(0);
-                TcpChannel channel = new TcpChannel(id, acceptSocket, this);
+                long acceptChannelId = CreateAcceptChannelId(0);
+                TcpChannel channel = new TcpChannel(acceptChannelId, acceptSocket, this);
                 _idChannels.Add(channel.ChannelId, channel);
                 long channelId = channel.ChannelId;
 
@@ -105,20 +105,19 @@ namespace ET
             return channel;
         }
 
-        protected override void Get(long id, IPEndPoint address)
+        protected override void Get(long channelId, IPEndPoint address)
         {
-            if (_idChannels.TryGetValue(id, out TcpChannel _))
+            if (_idChannels.TryGetValue(channelId, out TcpChannel _))
             {
                 return;
             }
 
-            Create(address, id);
+            Create(address, channelId);
         }
 
-        private TcpChannel Get(long id)
+        private TcpChannel Get(long channelId)
         {
-            TcpChannel channel = null;
-            _idChannels.TryGetValue(id, out channel);
+            _idChannels.TryGetValue(channelId, out TcpChannel channel);
             return channel;
         }
 
@@ -129,37 +128,37 @@ namespace ET
             _innArgs.Dispose();
             ThreadSyncContext = null;
 
-            foreach (long id in _idChannels.Keys.ToArray())
+            foreach (long channelId in _idChannels.Keys.ToArray())
             {
-                TcpChannel channel = _idChannels[id];
+                TcpChannel channel = _idChannels[channelId];
                 channel.Dispose();
             }
 
             _idChannels.Clear();
         }
 
-        public override void Remove(long id)
+        public override void Remove(long channelId)
         {
-            if (_idChannels.TryGetValue(id, out TcpChannel channel))
+            if (_idChannels.TryGetValue(channelId, out TcpChannel channel))
             {
                 channel.Dispose();
             }
 
-            _idChannels.Remove(id);
+            _idChannels.Remove(channelId);
         }
 
         protected override void Send(long channelId, long actorId, MemoryStream stream)
         {
             try
             {
-                TcpChannel aChannel = Get(channelId);
-                if (aChannel == null)
+                TcpChannel channel = Get(channelId);
+                if (channel == null)
                 {
                     OnError(channelId, ErrorCode.ERR_SendMessageNotFoundTChannel);
                     return;
                 }
 
-                aChannel.Send(actorId, stream);
+                channel.Send(actorId, stream);
             }
             catch (Exception e)
             {

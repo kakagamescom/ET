@@ -13,9 +13,9 @@ namespace ET
             OuterOpcode.G2C_Ping,
         };
 
-        private static bool IsNeedLogMessage(ushort opcode)
+        private static bool IsNeedLogMessage(ushort msgId)
         {
-            if (ignoreDebugLogMessageSet.Contains(opcode))
+            if (ignoreDebugLogMessageSet.Contains(msgId))
             {
                 return false;
             }
@@ -23,19 +23,19 @@ namespace ET
             return true;
         }
 
-        public static bool IsOuterMessage(ushort opcode)
+        public static bool IsOuterMessage(ushort msgId)
         {
-            return opcode >= 20000;
+            return msgId >= 20000;
         }
 
-        public static bool IsInnerMessage(ushort opcode)
+        public static bool IsInnerMessage(ushort msgId)
         {
-            return opcode < 20000;
+            return msgId < 20000;
         }
 
-        public static void LogMsg(int zone, ushort opcode, object message)
+        public static void LogMsg(int zone, ushort msgId, object message)
         {
-            if (!IsNeedLogMessage(opcode))
+            if (!IsNeedLogMessage(msgId))
             {
                 return;
             }
@@ -43,9 +43,9 @@ namespace ET
             Game.ILog.Debug("zone: {0} {1}", zone, message);
         }
 
-        public static void LogMsg(ushort opcode, long actorId, object message)
+        public static void LogMsg(ushort msgId, long actorId, object message)
         {
-            if (!IsNeedLogMessage(opcode))
+            if (!IsNeedLogMessage(msgId))
             {
                 return;
             }

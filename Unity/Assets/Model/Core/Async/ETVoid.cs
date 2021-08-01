@@ -4,7 +4,10 @@ using System.Runtime.CompilerServices;
 
 namespace ET
 {
-    [AsyncMethodBuilder(typeof (AsyncETVoidMethodBuilder))]
+    /// <summary>
+    /// 
+    /// </summary>
+    [AsyncMethodBuilder(typeof(AsyncETVoidMethodBuilder))]
     public struct ETVoid: ICriticalNotifyCompletion
     {
         [DebuggerHidden]

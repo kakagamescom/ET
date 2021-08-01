@@ -13,33 +13,33 @@ namespace ET
         
         public const ushort JsonMinOpcode = 51000;
         
-        public static object DeserializeFrom(ushort opcode, Type type, MemoryStream memoryStream)
+        public static object Deserialize(ushort msgId, Type type, MemoryStream memoryStream)
         {
-            if (opcode < PbMaxOpcode)
+            if (msgId < PbMaxOpcode)
             {
                 return ProtobufHelper.FromStream(type, memoryStream);
             }
             
-            if (opcode >= JsonMinOpcode)
+            if (msgId >= JsonMinOpcode)
             {
                 return JsonHelper.FromJson(type, memoryStream.GetBuffer().ToStr((int)memoryStream.Position, (int)(memoryStream.Length - memoryStream.Position)));
             }
 #if NOT_CLIENT
             return MongoHelper.FromStream(type, memoryStream);
 #else
-            throw new Exception($"client no message: {opcode}");
+            throw new Exception($"client no message: {msgId}");
 #endif
         }
 
-        public static void SerializeTo(ushort opcode, object obj, MemoryStream memoryStream)
+        public static void Serialize(ushort msgId, object obj, MemoryStream memoryStream)
         {
-            if (opcode < PbMaxOpcode)
+            if (msgId < PbMaxOpcode)
             {
                 ProtobufHelper.ToStream(obj, memoryStream);
                 return;
             }
 
-            if (opcode >= JsonMinOpcode)
+            if (msgId >= JsonMinOpcode)
             {
                 string s = JsonHelper.ToJson(obj);
                 byte[] bytes = s.ToUtf8();
@@ -49,7 +49,7 @@ namespace ET
 #if NOT_CLIENT
             MongoHelper.ToStream(obj, memoryStream);
 #else
-            throw new Exception($"client no message: {opcode}");
+            throw new Exception($"client no message: {msgId}");
 #endif
         }
 
@@ -70,39 +70,39 @@ namespace ET
         
         public static (ushort, MemoryStream) MessageToStream(object message, int count = 0)
         {
-            MemoryStream stream = GetStream(Packet.OpcodeLength + count);
+            MemoryStream stream = GetStream(Packet.MsgIdLength + count);
 
-            ushort opcode = MsgIdTypeComponent.Instance.GetOpcode(message.GetType());
+            ushort msgId = MsgIdTypeComponent.Instance.GetMsgId(message.GetType());
             
-            stream.Seek(Packet.OpcodeLength, SeekOrigin.Begin);
-            stream.SetLength(Packet.OpcodeLength);
+            stream.Seek(Packet.MsgIdLength, SeekOrigin.Begin);
+            stream.SetLength(Packet.MsgIdLength);
             
-            stream.GetBuffer().WriteTo(0, opcode);
+            stream.GetBuffer().WriteTo(0, msgId);
             
-            SerializeTo(opcode, message, stream);
+            Serialize(msgId, message, stream);
             
             stream.Seek(0, SeekOrigin.Begin);
-            return (opcode, stream);
+            return (msgId, stream);
         }
         
         public static (ushort, MemoryStream) MessageToStream(long actorId, object message, int count = 0)
         {
             int actorSize = sizeof (long);
-            MemoryStream stream = GetStream(actorSize + Packet.OpcodeLength + count);
+            MemoryStream stream = GetStream(actorSize + Packet.MsgIdLength + count);
 
-            ushort opcode = MsgIdTypeComponent.Instance.GetOpcode(message.GetType());
+            ushort msgId = MsgIdTypeComponent.Instance.GetMsgId(message.GetType());
             
-            stream.Seek(actorSize + Packet.OpcodeLength, SeekOrigin.Begin);
-            stream.SetLength(actorSize + Packet.OpcodeLength);
+            stream.Seek(actorSize + Packet.MsgIdLength, SeekOrigin.Begin);
+            stream.SetLength(actorSize + Packet.MsgIdLength);
 
             // 写入actorId
             stream.GetBuffer().WriteTo(0, actorId);
-            stream.GetBuffer().WriteTo(actorSize, opcode);
+            stream.GetBuffer().WriteTo(actorSize, msgId);
             
-            SerializeTo(opcode, message, stream);
+            Serialize(msgId, message, stream);
             
             stream.Seek(0, SeekOrigin.Begin);
-            return (opcode, stream);
+            return (msgId, stream);
         }
     }
 }

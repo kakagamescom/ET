@@ -5,7 +5,7 @@ namespace ET
     /// <summary>
     /// 启动初始化
     /// </summary>
-    public class AppStart_Init: AEvent<EventType.AppStart>
+    public class AppStart_Init: BaseEvent<EventType.AppStart>
     {
         protected override async ETTask Run(EventType.AppStart args)
         {

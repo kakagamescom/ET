@@ -2,7 +2,7 @@
 
 namespace ET
 {
-    public class LoadingBeginEvent_CreateLoadingUI : AEvent<EventType.LoadingBegin>
+    public class LoadingBeginEvent_CreateLoadingUI : BaseEvent<EventType.LoadingBegin>
     {
         protected override async ETTask Run(EventType.LoadingBegin args)
         {

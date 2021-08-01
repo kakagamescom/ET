@@ -22,6 +22,9 @@ namespace ET
         }
     }
 
+    /// <summary>
+    /// 消息Id类型组件
+    /// </summary>
     public class MsgIdTypeComponent: Entity
     {
         public static MsgIdTypeComponent Instance;
@@ -84,19 +87,19 @@ namespace ET
             }
         }
 
-        public bool IsOutrActorMessage(ushort opcode)
+        public bool IsOuterActorMessage(ushort msgId)
         {
-            return _outerActorMessage.Contains(opcode);
+            return _outerActorMessage.Contains(msgId);
         }
 
-        public ushort GetOpcode(Type type)
+        public ushort GetMsgId(Type type)
         {
             return _typeMsgIds[type];
         }
 
-        public Type GetType(ushort opcode)
+        public Type GetType(ushort msgId)
         {
-            return _msgIdTypes[opcode];
+            return _msgIdTypes[msgId];
         }
 
         public Type GetResponseType(Type request)

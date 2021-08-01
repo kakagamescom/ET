@@ -99,9 +99,9 @@ namespace ET
             set;
         }
 
-        public void OnRead(ushort opcode, IResponse response)
+        public void OnRead(ushort msgId, IResponse response)
         {
-            MsgIdHelper.LogMsg(this.DomainZone(), opcode, response);
+            MsgIdHelper.LogMsg(this.DomainZone(), msgId, response);
             
             if (!this.requestCallbacks.TryGetValue(response.RpcId, out var action))
             {
@@ -174,15 +174,15 @@ namespace ET
             {
                 case NetServiceType.Inner:
                 {
-                    (ushort opcode, MemoryStream stream) = MessageSerializeHelper.MessageToStream(0, message);
-                    MsgIdHelper.LogMsg(this.DomainZone(), opcode, message);
+                    (ushort msgId, MemoryStream stream) = MessageSerializeHelper.MessageToStream(0, message);
+                    MsgIdHelper.LogMsg(this.DomainZone(), msgId, message);
                     this.Send(0, stream);
                     break;
                 }
                 case NetServiceType.Outer:
                 {
-                    (ushort opcode, MemoryStream stream) = MessageSerializeHelper.MessageToStream(message);
-                    MsgIdHelper.LogMsg(this.DomainZone(), opcode, message);
+                    (ushort msgId, MemoryStream stream) = MessageSerializeHelper.MessageToStream(message);
+                    MsgIdHelper.LogMsg(this.DomainZone(), msgId, message);
                     this.Send(0, stream);
                     break;
                 }
@@ -191,8 +191,8 @@ namespace ET
         
         public void Send(long actorId, IMessage message)
         {
-            (ushort opcode, MemoryStream stream) = MessageSerializeHelper.MessageToStream(actorId, message);
-            MsgIdHelper.LogMsg(this.DomainZone(), opcode, message);
+            (ushort msgId, MemoryStream stream) = MessageSerializeHelper.MessageToStream(actorId, message);
+            MsgIdHelper.LogMsg(this.DomainZone(), msgId, message);
             this.Send(actorId, stream);
         }
         

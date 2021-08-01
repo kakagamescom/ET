@@ -28,7 +28,7 @@ namespace ET
 
         private readonly PacketParser _packetParser;
 
-        private readonly byte[] _sendCache = new byte[Packet.OpcodeLength + Packet.ActorIdLength];
+        private readonly byte[] _sendCache = new byte[Packet.MsgIdLength + Packet.ActorIdLength];
 
         private void OnComplete(object sender, SocketAsyncEventArgs eventArgs)
         {
