@@ -5,6 +5,9 @@ using ProtoBuf;
 
 namespace ET
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ProtoObject: Object
     {
         public object Clone()

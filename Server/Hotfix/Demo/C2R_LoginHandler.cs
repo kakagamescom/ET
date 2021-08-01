@@ -5,7 +5,7 @@ using System.Net;
 namespace ET
 {
 	[MessageHandler]
-	public class C2R_LoginHandler : BaseRpcMessageHandler<C2R_Login, R2C_Login>
+	public class C2R_LoginHandler : RpcMessageHandler<C2R_Login, R2C_Login>
 	{
 		protected override async ETTask Run(Session session, C2R_Login request, R2C_Login response, Action reply)
 		{

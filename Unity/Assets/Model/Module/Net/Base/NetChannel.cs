@@ -36,7 +36,7 @@ namespace ET
     /// </summary>
     public abstract class NetChannel: IDisposable
     {
-        public long Id;
+        public long ChannelId;
 
         public ChannelType ChannelType { get; protected set; }
 
@@ -48,7 +48,7 @@ namespace ET
         {
             get
             {
-                return this.Id == 0;
+                return ChannelId == 0;
             }
         }
 

@@ -5,7 +5,7 @@ namespace ET
     public interface IChangeSystem
     {
         Type Type();
-        
+
         void Run(object o);
     }
 

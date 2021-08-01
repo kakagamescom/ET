@@ -27,16 +27,16 @@ namespace ET
 
         private ParserState _state;
 
-        private NetService _service;
+        private NetService _netService;
 
         private readonly byte[] _cache = new byte[8];
 
         public MemoryStream MemoryStream;
 
-        public PacketParser(CircularBuffer buffer, NetService service)
+        public PacketParser(CircularBuffer buffer, NetService netService)
         {
             _buffer = buffer;
-            _service = service;
+            _netService = netService;
         }
 
         public bool Parse()
@@ -61,7 +61,7 @@ namespace ET
 
         private bool ParseSize()
         {
-            if (_service.ServiceType == NetServiceType.Inner)
+            if (this._netService.ServiceType == NetServiceType.Inner)
             {
                 if (_buffer.Length < InnerPacketSizeLength)
                 {
@@ -109,7 +109,7 @@ namespace ET
             //memoryStream.SetLength(packetSize - Packet.MessageIndex);
             MemoryStream = memoryStream;
 
-            if (_service.ServiceType == NetServiceType.Inner)
+            if (this._netService.ServiceType == NetServiceType.Inner)
             {
                 memoryStream.Seek(Packet.MessageIndex, SeekOrigin.Begin);
             }

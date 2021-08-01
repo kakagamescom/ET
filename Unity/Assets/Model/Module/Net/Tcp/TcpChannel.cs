@@ -53,11 +53,11 @@ namespace ET
 
 #region net thread
 
-        public TcpChannel(long id, IPEndPoint ipEndPoint, TcpService service)
+        public TcpChannel(long channelId, IPEndPoint ipEndPoint, TcpService service)
         {
             ChannelType = ChannelType.Transfer;
             
-            Id = id;
+            ChannelId = channelId;
             _service = service;
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _socket.NoDelay = true;
@@ -72,11 +72,11 @@ namespace ET
             _service.ThreadSyncContext.PostNext(ConnectAsync);
         }
 
-        public TcpChannel(long id, Socket acceptSocket, TcpService service)
+        public TcpChannel(long channelId, Socket acceptSocket, TcpService service)
         {
             ChannelType = ChannelType.Accept;
             
-            Id = id;
+            ChannelId = channelId;
             _service = service;
             _socket = acceptSocket;
             _socket.NoDelay = true;
@@ -99,15 +99,13 @@ namespace ET
         public override void Dispose()
         {
             if (IsDisposed)
-            {
                 return;
-            }
 
-            Log.Info($"channel dispose: {Id} {RemoteAddress}");
+            Log.Info($"channel dispose: {ChannelId} {RemoteAddress}");
 
-            long id = Id;
-            Id = 0;
-            _service.Remove(id);
+            long channelId = ChannelId;
+            ChannelId = 0;
+            _service.Remove(channelId);
             _socket.Close();
             _innArgs.Dispose();
             _outArgs.Dispose();
@@ -156,7 +154,7 @@ namespace ET
             if (!_isSending)
             {
                 //StartSend();
-                _service.NeedStartSend.Add(Id);
+                _service.NeedStartSend.Add(ChannelId);
             }
         }
 
@@ -164,9 +162,7 @@ namespace ET
         {
             _outArgs.RemoteEndPoint = RemoteAddress;
             if (_socket.ConnectAsync(_outArgs))
-            {
                 return;
-            }
 
             OnConnectComplete(_outArgs);
         }
@@ -174,19 +170,16 @@ namespace ET
         private void OnConnectComplete(object o)
         {
             if (_socket == null)
+                return;
+
+            SocketAsyncEventArgs eventArgs = (SocketAsyncEventArgs)o;
+            if (eventArgs.SocketError != SocketError.Success)
             {
+                OnError((int)eventArgs.SocketError);
                 return;
             }
 
-            SocketAsyncEventArgs e = (SocketAsyncEventArgs)o;
-
-            if (e.SocketError != SocketError.Success)
-            {
-                OnError((int)e.SocketError);
-                return;
-            }
-
-            e.RemoteEndPoint = null;
+            eventArgs.RemoteEndPoint = null;
             _isConnected = true;
             StartRecv();
             StartSend();
@@ -194,8 +187,8 @@ namespace ET
 
         private void OnDisconnectComplete(object o)
         {
-            SocketAsyncEventArgs e = (SocketAsyncEventArgs)o;
-            OnError((int)e.SocketError);
+            SocketAsyncEventArgs eventArgs = (SocketAsyncEventArgs)o;
+            OnError((int)eventArgs.SocketError);
         }
 
         private void StartRecv()
@@ -205,16 +198,14 @@ namespace ET
                 try
                 {
                     if (_socket == null)
-                    {
                         return;
-                    }
 
                     int size = _recvBuffer.ChunkSize - _recvBuffer.LastIndex;
                     _innArgs.SetBuffer(_recvBuffer.Last, _recvBuffer.LastIndex, size);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Log.Error($"tchannel error: {Id}\n{e}");
+                    Log.Error($"tchannel error: {ChannelId}\n{ex}");
                     OnError(ErrorCode.ERR_TChannelRecvError);
                     return;
                 }
@@ -233,9 +224,7 @@ namespace ET
             HandleRecv(o);
 
             if (_socket == null)
-            {
                 return;
-            }
 
             StartRecv();
         }
@@ -243,25 +232,23 @@ namespace ET
         private void HandleRecv(object o)
         {
             if (_socket == null)
+                return;
+
+            SocketAsyncEventArgs eventArgs = (SocketAsyncEventArgs)o;
+
+            if (eventArgs.SocketError != SocketError.Success)
             {
+                OnError((int)eventArgs.SocketError);
                 return;
             }
 
-            SocketAsyncEventArgs e = (SocketAsyncEventArgs)o;
-
-            if (e.SocketError != SocketError.Success)
-            {
-                OnError((int)e.SocketError);
-                return;
-            }
-
-            if (e.BytesTransferred == 0)
+            if (eventArgs.BytesTransferred == 0)
             {
                 OnError(ErrorCode.ERR_PeerDisconnect);
                 return;
             }
 
-            _recvBuffer.LastIndex += e.BytesTransferred;
+            _recvBuffer.LastIndex += eventArgs.BytesTransferred;
             if (_recvBuffer.LastIndex == _recvBuffer.ChunkSize)
             {
                 _recvBuffer.AddLast();
@@ -273,23 +260,19 @@ namespace ET
             {
                 // 这里循环解析消息执行，有可能，执行消息的过程中断开了session
                 if (_socket == null)
-                {
                     return;
-                }
 
                 try
                 {
                     bool ret = _packetParser.Parse();
                     if (!ret)
-                    {
                         break;
-                    }
 
                     OnRead(_packetParser.MemoryStream);
                 }
-                catch (Exception ee)
+                catch (Exception ex)
                 {
-                    Log.Error($"ip: {RemoteAddress} {ee}");
+                    Log.Error($"ip: {RemoteAddress} {ex}");
                     OnError(ErrorCode.ERR_SocketError);
                     return;
                 }
@@ -304,18 +287,14 @@ namespace ET
         private void StartSend()
         {
             if (!_isConnected)
-            {
                 return;
-            }
 
             while (true)
             {
                 try
                 {
                     if (_socket == null)
-                    {
                         return;
-                    }
 
                     // 没有数据需要发送
                     if (_sendBuffer.Length == 0)
@@ -388,12 +367,12 @@ namespace ET
         {
             try
             {
-                long channelId = Id;
+                long channelId = ChannelId;
                 _service.OnRead(channelId, memoryStream);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Log.Error($"{RemoteAddress} {memoryStream.Length} {e}");
+                Log.Error($"{RemoteAddress} {memoryStream.Length} {ex}");
                 // 出现任何消息解析异常都要断开Session，防止客户端伪造消息
                 OnError(ErrorCode.ERR_PacketParserError);
             }
@@ -403,10 +382,8 @@ namespace ET
         {
             Log.Info($"TChannel OnError: {error} {RemoteAddress}");
 
-            long channelId = Id;
-
+            long channelId = ChannelId;
             _service.Remove(channelId);
-
             _service.OnError(channelId, error);
         }
 

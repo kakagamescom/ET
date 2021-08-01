@@ -5,11 +5,12 @@
     /// </summary>
     public class MessageAttribute: BaseAttribute
     {
-        public ushort Opcode { get; }
+        /// 消息Id
+        public ushort MsgId { get; }
 
-        public MessageAttribute(ushort opcode)
+        public MessageAttribute(ushort msgId)
         {
-            Opcode = opcode;
+            MsgId = msgId;
         }
     }
 }

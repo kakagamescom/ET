@@ -39,15 +39,15 @@ namespace ET
 
                     await TimerComponent.Instance.WaitAsync(2000);
                 }
-                catch (RpcException e)
+                catch (RpcException ex)
                 {
                     // session断开导致ping rpc报错，记录一下即可，不需要打成error
-                    Log.Info($"ping error: {self.Id} {e.Error}");
+                    Log.Info($"ping error: {self.Id} {ex.Error}");
                     return;
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Log.Error($"ping error: \n{e}");
+                    Log.Error($"ping error: \n{ex}");
                 }
             }
         }

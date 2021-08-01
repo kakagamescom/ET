@@ -24,6 +24,9 @@ namespace ET
 
         // localConn放在低32bit
         private long _connectIdGenerater = int.MaxValue;
+        
+        // localConn放在低32bit
+        private long _acceptIdGenerater = 1;
 
         public long CreateConnectChannelId(uint localConn)
         {
@@ -34,9 +37,6 @@ namespace ET
         {
             return (1u << 30) | RandomHelper.RandUInt32();
         }
-
-        // localConn放在低32bit
-        private long _acceptIdGenerater = 1;
 
         public long CreateAcceptChannelId(uint localConn)
         {

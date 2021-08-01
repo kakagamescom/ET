@@ -1,6 +1,6 @@
 ﻿namespace ET
 {
-	public interface ISerializeToEntity
-	{
-	}
+    public interface ISerializeToEntity
+    {
+    }
 }

@@ -5,7 +5,7 @@ namespace ET
     /// <summary>
     /// 网络消息Id辅助工具类
     /// </summary>
-    public static class OpcodeHelper
+    public static class MsgIdHelper
     {
         private static readonly HashSet<ushort> ignoreDebugLogMessageSet = new HashSet<ushort>
         {

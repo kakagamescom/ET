@@ -72,7 +72,7 @@ namespace ET
         {
             MemoryStream stream = GetStream(Packet.OpcodeLength + count);
 
-            ushort opcode = OpcodeTypeComponent.Instance.GetOpcode(message.GetType());
+            ushort opcode = MsgIdTypeComponent.Instance.GetOpcode(message.GetType());
             
             stream.Seek(Packet.OpcodeLength, SeekOrigin.Begin);
             stream.SetLength(Packet.OpcodeLength);
@@ -90,7 +90,7 @@ namespace ET
             int actorSize = sizeof (long);
             MemoryStream stream = GetStream(actorSize + Packet.OpcodeLength + count);
 
-            ushort opcode = OpcodeTypeComponent.Instance.GetOpcode(message.GetType());
+            ushort opcode = MsgIdTypeComponent.Instance.GetOpcode(message.GetType());
             
             stream.Seek(actorSize + Packet.OpcodeLength, SeekOrigin.Begin);
             stream.SetLength(actorSize + Packet.OpcodeLength);

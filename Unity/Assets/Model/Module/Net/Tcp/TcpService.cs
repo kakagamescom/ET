@@ -76,8 +76,8 @@ namespace ET
             {
                 long id = CreateAcceptChannelId(0);
                 TcpChannel channel = new TcpChannel(id, acceptSocket, this);
-                _idChannels.Add(channel.Id, channel);
-                long channelId = channel.Id;
+                _idChannels.Add(channel.ChannelId, channel);
+                long channelId = channel.ChannelId;
 
                 OnAccept(channelId, channel.RemoteAddress);
             }
@@ -101,7 +101,7 @@ namespace ET
         private TcpChannel Create(IPEndPoint ipEndPoint, long id)
         {
             TcpChannel channel = new TcpChannel(id, ipEndPoint, this);
-            _idChannels.Add(channel.Id, channel);
+            _idChannels.Add(channel.ChannelId, channel);
             return channel;
         }
 

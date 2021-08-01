@@ -15,7 +15,7 @@ namespace ET
             StartProcessConfig processConfig = StartProcessConfigCategory.Instance.Get(Game.Options.Process);
 
             Game.Scene.AddComponent<TimerComponent>();
-            Game.Scene.AddComponent<OpcodeTypeComponent>();
+            Game.Scene.AddComponent<MsgIdTypeComponent>();
             Game.Scene.AddComponent<MessageDispatcherComponent>();
             Game.Scene.AddComponent<CoroutineLockComponent>();
             // 发送普通actor消息

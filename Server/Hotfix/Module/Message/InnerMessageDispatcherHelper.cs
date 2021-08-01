@@ -65,7 +65,7 @@ namespace ET
 
         public static void HandleIActorMessage(ushort opcode, long actorId, IActorMessage iActorMessage)
         {
-            OpcodeHelper.LogMsg(opcode, actorId, iActorMessage);
+            MsgIdHelper.LogMsg(opcode, actorId, iActorMessage);
 
             Entity entity = Game.EventSystem.Get(actorId);
             if (entity == null)

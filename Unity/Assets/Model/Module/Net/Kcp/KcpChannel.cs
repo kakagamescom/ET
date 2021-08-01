@@ -33,7 +33,7 @@ namespace ET
         public readonly uint CreateTime;
 
         public uint LocalConn { get; set; }
-        
+
         public uint RemoteConn { get; set; }
 
         private readonly byte[] _sendCache = new byte[2 * 1024];
@@ -47,37 +47,18 @@ namespace ET
         private MemoryStream _ms = new MemoryStream(_maxPacketSize);
 
         private MemoryStream _readMemory;
+        
         private int _needReadSplitCount;
-
-        private void InitKcp()
-        {
-            KcpPtrChannels.Add(kcp, this);
-            switch (Service.ServiceType)
-            {
-                case NetServiceType.Inner:
-                    Kcp.KcpNodelay(kcp, 1, 10, 2, 1);
-                    Kcp.KcpWndsize(kcp, ushort.MaxValue, ushort.MaxValue);
-                    Kcp.KcpSetmtu(kcp, 1400); // 默认1400
-                    Kcp.KcpSetminrto(kcp, 30);
-                    break;
-                case NetServiceType.Outer:
-                    Kcp.KcpNodelay(kcp, 1, 10, 2, 1);
-                    Kcp.KcpWndsize(kcp, 256, 256);
-                    Kcp.KcpSetmtu(kcp, 470);
-                    Kcp.KcpSetminrto(kcp, 30);
-                    break;
-            }
-        }
 
         // connect
         public KcpChannel(long id, uint localConn, Socket socket, IPEndPoint remoteEndPoint, KcpService kService)
         {
             LocalConn = localConn;
 
-            Id = id;
+            this.ChannelId = id;
             ChannelType = ChannelType.Transfer;
 
-            Log.Info($"channel create: {Id} {LocalConn} {remoteEndPoint} {ChannelType}");
+            Log.Info($"channel create: {this.ChannelId} {LocalConn} {remoteEndPoint} {ChannelType}");
 
             kcp = IntPtr.Zero;
             Service = kService;
@@ -92,10 +73,10 @@ namespace ET
         // accept
         public KcpChannel(long id, uint localConn, uint remoteConn, Socket socket, IPEndPoint remoteEndPoint, KcpService kService)
         {
-            Id = id;
+            this.ChannelId = id;
             ChannelType = ChannelType.Accept;
 
-            Log.Info($"channel create: {Id} {localConn} {remoteConn} {remoteEndPoint} {ChannelType}");
+            Log.Info($"channel create: {this.ChannelId} {localConn} {remoteConn} {remoteEndPoint} {ChannelType}");
 
             Service = kService;
             LocalConn = localConn;
@@ -118,10 +99,10 @@ namespace ET
 
             uint localConn = LocalConn;
             uint remoteConn = RemoteConn;
-            Log.Info($"channel dispose: {Id} {localConn} {remoteConn}");
+            Log.Info($"channel dispose: {this.ChannelId} {localConn} {remoteConn}");
 
-            long id = Id;
-            Id = 0;
+            long id = this.ChannelId;
+            this.ChannelId = 0;
             Service.Remove(id);
 
             try
@@ -155,7 +136,7 @@ namespace ET
             kcp = Kcp.KcpCreate(RemoteConn, IntPtr.Zero);
             InitKcp();
 
-            Log.Info($"channel connected: {Id} {LocalConn} {RemoteConn} {RemoteAddress}");
+            Log.Info($"channel connected: {this.ChannelId} {LocalConn} {RemoteConn} {RemoteAddress}");
             IsConnected = true;
             _lastRecvTime = Service.TimeNow;
 
@@ -187,10 +168,11 @@ namespace ET
                 buffer.WriteTo(1, LocalConn);
                 buffer.WriteTo(5, RemoteConn);
                 _socket.SendTo(buffer, 0, 9, SocketFlags.None, RemoteAddress);
-                Log.Info($"KcpChannel connect {Id} {LocalConn} {RemoteConn} {RealAddress} {_socket.LocalEndPoint}");
+                
+                Log.Info($"KcpChannel connect {this.ChannelId} {LocalConn} {RemoteConn} {RealAddress} {_socket.LocalEndPoint}");
 
                 // 300毫秒后再次update发送connect请求
-                Service.AddToUpdateNextTime(timeNow + 300, Id);
+                Service.AddToUpdateNextTime(timeNow + 300, this.ChannelId);
             }
             catch (Exception e)
             {
@@ -202,9 +184,7 @@ namespace ET
         public void Update()
         {
             if (IsDisposed)
-            {
                 return;
-            }
 
             uint timeNow = Service.TimeNow;
 
@@ -214,7 +194,7 @@ namespace ET
                 // 10秒超时没连接上则报错
                 if (timeNow - CreateTime > 10000)
                 {
-                    Log.Error($"KcpChannel connect timeout: {Id} {RemoteConn} {timeNow} {CreateTime} {ChannelType} {RemoteAddress}");
+                    Log.Error($"KcpChannel connect timeout: {this.ChannelId} {RemoteConn} {timeNow} {CreateTime} {ChannelType} {RemoteAddress}");
                     OnError(ErrorCode.ERR_KcpConnectTimeout);
                     return;
                 }
@@ -238,41 +218,35 @@ namespace ET
             {
                 Kcp.KcpUpdate(kcp, timeNow);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Log.Error(e);
+                Log.Error(ex);
                 OnError(ErrorCode.ERR_SocketError);
                 return;
             }
 
             uint nextUpdateTime = Kcp.KcpCheck(kcp, timeNow);
-            Service.AddToUpdateNextTime(nextUpdateTime, Id);
+            Service.AddToUpdateNextTime(nextUpdateTime, this.ChannelId);
         }
 
         public void HandleRecv(byte[] date, int offset, int length)
         {
             if (IsDisposed)
-            {
                 return;
-            }
 
             IsConnected = true;
 
             Kcp.KcpInput(kcp, date, offset, length);
-            Service.AddToUpdateNextTime(0, Id);
+            Service.AddToUpdateNextTime(0, this.ChannelId);
 
             while (true)
             {
                 if (IsDisposed)
-                {
                     break;
-                }
 
                 int n = Kcp.KcpPeeksize(kcp);
                 if (n < 0)
-                {
                     break;
-                }
 
                 if (n == 0)
                 {
@@ -301,9 +275,7 @@ namespace ET
 
                     // 没有读完
                     if (_needReadSplitCount != 0)
-                    {
                         continue;
-                    }
                 }
                 else
                 {
@@ -314,9 +286,7 @@ namespace ET
                     byte[] buffer = _readMemory.GetBuffer();
                     int count = Kcp.KcpRecv(kcp, buffer, 0, n);
                     if (n != count)
-                    {
                         break;
-                    }
 
                     // 判断是不是分片
                     if (n == 8)
@@ -360,17 +330,13 @@ namespace ET
         public void Output(IntPtr bytes, int count)
         {
             if (IsDisposed)
-            {
                 return;
-            }
 
             try
             {
                 // 没连接上 kcp不往外发消息, 其实本来没连接上不会调用update，这里只是做一层保护
                 if (!IsConnected)
-                {
                     return;
-                }
 
                 if (count == 0)
                 {
@@ -392,12 +358,30 @@ namespace ET
             }
         }
 
+        private void InitKcp()
+        {
+            KcpPtrChannels.Add(kcp, this);
+            switch (Service.ServiceType)
+            {
+                case NetServiceType.Inner:
+                    Kcp.KcpNodelay(kcp, 1, 10, 2, 1);
+                    Kcp.KcpWndsize(kcp, ushort.MaxValue, ushort.MaxValue);
+                    Kcp.KcpSetmtu(kcp, 1400); // 默认1400
+                    Kcp.KcpSetminrto(kcp, 30);
+                    break;
+                case NetServiceType.Outer:
+                    Kcp.KcpNodelay(kcp, 1, 10, 2, 1);
+                    Kcp.KcpWndsize(kcp, 256, 256);
+                    Kcp.KcpSetmtu(kcp, 470);
+                    Kcp.KcpSetminrto(kcp, 30);
+                    break;
+            }
+        }
+
         private void KcpSend(KcpWaitPacket kcpWaitPacket)
         {
             if (IsDisposed)
-            {
                 return;
-            }
 
             MemoryStream memoryStream = kcpWaitPacket.MemoryStream;
             int count = (int)(memoryStream.Length - memoryStream.Position);
@@ -433,7 +417,7 @@ namespace ET
                 }
             }
 
-            Service.AddToUpdateNextTime(0, Id);
+            Service.AddToUpdateNextTime(0, this.ChannelId);
         }
 
         public void Send(long actorId, MemoryStream stream)
@@ -458,7 +442,7 @@ namespace ET
 
                 if (n > maxWaitSize)
                 {
-                    Log.Error($"kcp wait snd too large: {n}: {Id} {LocalConn} {RemoteConn}");
+                    Log.Error($"kcp wait snd too large: {n}: {this.ChannelId} {LocalConn} {RemoteConn}");
                     OnError(ErrorCode.ERR_KcpWaitSendSizeTooLarge);
                     return;
                 }
@@ -476,12 +460,12 @@ namespace ET
 
         private void OnRead(MemoryStream memoryStream)
         {
-            Service.OnRead(Id, memoryStream);
+            Service.OnRead(this.ChannelId, memoryStream);
         }
 
         public void OnError(int error)
         {
-            long channelId = Id;
+            long channelId = this.ChannelId;
             Service.Remove(channelId);
             Service.OnError(channelId, error);
         }

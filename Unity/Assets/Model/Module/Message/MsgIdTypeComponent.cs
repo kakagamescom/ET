@@ -4,39 +4,39 @@ using System.Collections.Generic;
 namespace ET
 {
     [ObjectSystem]
-    public class OpcodeTypeComponentAwakeSystem: AwakeSystem<OpcodeTypeComponent>
+    public class MsgIdTypeComponentAwakeSystem: AwakeSystem<MsgIdTypeComponent>
     {
-        public override void Awake(OpcodeTypeComponent self)
+        public override void Awake(MsgIdTypeComponent self)
         {
-            OpcodeTypeComponent.Instance = self;
+            MsgIdTypeComponent.Instance = self;
             self.Awake();
         }
     }
 
     [ObjectSystem]
-    public class OpcodeTypeComponentDestroySystem: DestroySystem<OpcodeTypeComponent>
+    public class MsgIdTypeComponentDestroySystem: DestroySystem<MsgIdTypeComponent>
     {
-        public override void Destroy(OpcodeTypeComponent self)
+        public override void Destroy(MsgIdTypeComponent self)
         {
-            OpcodeTypeComponent.Instance = null;
+            MsgIdTypeComponent.Instance = null;
         }
     }
 
-    public class OpcodeTypeComponent: Entity
+    public class MsgIdTypeComponent: Entity
     {
-        public static OpcodeTypeComponent Instance;
+        public static MsgIdTypeComponent Instance;
 
         private HashSet<ushort> _outerActorMessage = new HashSet<ushort>();
 
-        private readonly Dictionary<ushort, Type> _opcodeTypes = new Dictionary<ushort, Type>();
-        private readonly Dictionary<Type, ushort> _typeOpcodes = new Dictionary<Type, ushort>();
+        private readonly Dictionary<ushort, Type> _msgIdTypes = new Dictionary<ushort, Type>();
+        private readonly Dictionary<Type, ushort> _typeMsgIds = new Dictionary<Type, ushort>();
 
         private readonly Dictionary<Type, Type> _requestResponse = new Dictionary<Type, Type>();
 
         public void Awake()
         {
-            _opcodeTypes.Clear();
-            _typeOpcodes.Clear();
+            _msgIdTypes.Clear();
+            _typeMsgIds.Clear();
             _requestResponse.Clear();
 
             HashSet<Type> types = Game.EventSystem.GetTypes(typeof(MessageAttribute));
@@ -54,12 +54,12 @@ namespace ET
                     continue;
                 }
 
-                _opcodeTypes.Add(messageAttribute.Opcode, type);
-                _typeOpcodes.Add(type, messageAttribute.Opcode);
+                _msgIdTypes.Add(messageAttribute.MsgId, type);
+                _typeMsgIds.Add(type, messageAttribute.MsgId);
 
-                if (OpcodeHelper.IsOuterMessage(messageAttribute.Opcode) && typeof(IActorMessage).IsAssignableFrom(type))
+                if (MsgIdHelper.IsOuterMessage(messageAttribute.MsgId) && typeof(IActorMessage).IsAssignableFrom(type))
                 {
-                    _outerActorMessage.Add(messageAttribute.Opcode);
+                    _outerActorMessage.Add(messageAttribute.MsgId);
                 }
 
                 // 检查request response
@@ -91,12 +91,12 @@ namespace ET
 
         public ushort GetOpcode(Type type)
         {
-            return _typeOpcodes[type];
+            return _typeMsgIds[type];
         }
 
         public Type GetType(ushort opcode)
         {
-            return _opcodeTypes[opcode];
+            return _msgIdTypes[opcode];
         }
 
         public Type GetResponseType(Type request)

@@ -20,7 +20,7 @@ namespace ET
                 object message = null;
 #if SERVER
                 // 内网收到外网消息，有可能是gateUnit消息，还有可能是gate广播消息
-                if (OpcodeTypeComponent.Instance.IsOutrActorMessage(opcode))
+                if (MsgIdTypeComponent.Instance.IsOutrActorMessage(opcode))
                 {
                     InstanceIdStruct instanceIdStruct = new InstanceIdStruct(actorId);
                     instanceIdStruct.Process = Game.Options.Process;
@@ -29,7 +29,7 @@ namespace ET
                     Entity entity = Game.EventSystem.Get(realActorId);
                     if (entity == null)
                     {
-                        type = OpcodeTypeComponent.Instance.GetType(opcode);
+                        type = MsgIdTypeComponent.Instance.GetType(opcode);
                         message = MessageSerializeHelper.DeserializeFrom(opcode, type, memoryStream);
                         Log.Error($"not found actor: {session.DomainScene().Name}  {opcode} {realActorId} {message}");
                         return;
@@ -45,7 +45,7 @@ namespace ET
                 }
 #endif
 
-                type = OpcodeTypeComponent.Instance.GetType(opcode);
+                type = MsgIdTypeComponent.Instance.GetType(opcode);
                 message = MessageSerializeHelper.DeserializeFrom(opcode, type, memoryStream);
 
                 if (message is IResponse iResponse && !(message is IActorResponse))
@@ -54,7 +54,7 @@ namespace ET
                     return;
                 }
 
-                OpcodeHelper.LogMsg(session.DomainZone(), opcode, message);
+                MsgIdHelper.LogMsg(session.DomainZone(), opcode, message);
 
                 // 收到actor消息,放入actor队列
                 switch (message)

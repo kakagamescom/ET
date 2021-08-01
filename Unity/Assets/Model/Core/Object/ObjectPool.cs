@@ -8,42 +8,39 @@ namespace ET
     /// </summary>
     public class ComponentQueue: Object
     {
-        public string TypeName
-        {
-            get;
-        }
+        public string TypeName { get; }
 
-        private readonly Queue<Object> queue = new Queue<Object>();
+        private readonly Queue<Object> _queue = new Queue<Object>();
 
         public ComponentQueue(string typeName)
         {
-            this.TypeName = typeName;
+            TypeName = typeName;
         }
 
         public void Enqueue(Object entity)
         {
-            this.queue.Enqueue(entity);
+            _queue.Enqueue(entity);
         }
 
         public Object Dequeue()
         {
-            return this.queue.Dequeue();
+            return _queue.Dequeue();
         }
 
         public Object Peek()
         {
-            return this.queue.Peek();
+            return _queue.Peek();
         }
 
-        public Queue<Object> Queue => this.queue;
+        public Queue<Object> Queue => _queue;
 
-        public int Count => this.queue.Count;
+        public int Count => _queue.Count;
 
         public override void Dispose()
         {
-            while (this.queue.Count > 0)
+            while (_queue.Count > 0)
             {
-                Object component = this.queue.Dequeue();
+                Object component = _queue.Dequeue();
                 component.Dispose();
             }
         }
@@ -54,33 +51,33 @@ namespace ET
     /// </summary>
     public class ObjectPool: Object
     {
-        private static ObjectPool instance;
+        private static ObjectPool _instance;
 
         public static ObjectPool Instance
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new ObjectPool();
+                    _instance = new ObjectPool();
                 }
 
-                return instance;
+                return _instance;
             }
         }
 
-        public readonly Dictionary<Type, ComponentQueue> dictionary = new Dictionary<Type, ComponentQueue>();
+        private readonly Dictionary<Type, ComponentQueue> _dictionary = new Dictionary<Type, ComponentQueue>();
 
         public Object Fetch(Type type)
         {
             Object obj;
-            if (!this.dictionary.TryGetValue(type, out ComponentQueue queue))
+            if (!_dictionary.TryGetValue(type, out ComponentQueue queue))
             {
-                obj = (Object) Activator.CreateInstance(type);
+                obj = (Object)Activator.CreateInstance(type);
             }
             else if (queue.Count == 0)
             {
-                obj = (Object) Activator.CreateInstance(type);
+                obj = (Object)Activator.CreateInstance(type);
             }
             else
             {
@@ -92,7 +89,7 @@ namespace ET
 
         public T Fetch<T>() where T : Object
         {
-            T t = (T) this.Fetch(typeof (T));
+            T t = (T)Fetch(typeof(T));
             return t;
         }
 
@@ -100,18 +97,18 @@ namespace ET
         {
             Type type = obj.GetType();
             ComponentQueue queue;
-            if (!this.dictionary.TryGetValue(type, out queue))
+            if (!_dictionary.TryGetValue(type, out queue))
             {
                 queue = new ComponentQueue(type.Name);
 
 #if UNITY_EDITOR && VIEWGO
                 if (queue.ViewGO != null)
                 {
-                    queue.ViewGO.transform.SetParent(this.ViewGO.transform);
+                    queue.ViewGO.transform.SetParent(ViewGO.transform);
                     queue.ViewGO.name = $"{type.Name}s";
                 }
 #endif
-                this.dictionary.Add(type, queue);
+                _dictionary.Add(type, queue);
             }
 
 #if UNITY_EDITOR && VIEWGO
@@ -125,23 +122,23 @@ namespace ET
 
         public void Clear()
         {
-            foreach (KeyValuePair<Type, ComponentQueue> kv in this.dictionary)
+            foreach (KeyValuePair<Type, ComponentQueue> kv in _dictionary)
             {
                 kv.Value.Dispose();
             }
 
-            this.dictionary.Clear();
+            _dictionary.Clear();
         }
 
         public override void Dispose()
         {
-            foreach (KeyValuePair<Type, ComponentQueue> kv in this.dictionary)
+            foreach (KeyValuePair<Type, ComponentQueue> kv in _dictionary)
             {
                 kv.Value.Dispose();
             }
 
-            this.dictionary.Clear();
-            instance = null;
+            _dictionary.Clear();
+            _instance = null;
         }
     }
 }

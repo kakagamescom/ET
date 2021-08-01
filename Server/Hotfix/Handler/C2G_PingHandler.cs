@@ -4,7 +4,7 @@
 namespace ET
 {
 	[MessageHandler]
-	public class C2G_PingHandler : BaseRpcMessageHandler<C2G_Ping, G2C_Ping>
+	public class C2G_PingHandler : RpcMessageHandler<C2G_Ping, G2C_Ping>
 	{
 		protected override async ETTask Run(Session session, C2G_Ping request, G2C_Ping response, Action reply)
 		{

@@ -101,7 +101,7 @@ namespace ET
 
         public void OnRead(ushort opcode, IResponse response)
         {
-            OpcodeHelper.LogMsg(this.DomainZone(), opcode, response);
+            MsgIdHelper.LogMsg(this.DomainZone(), opcode, response);
             
             if (!this.requestCallbacks.TryGetValue(response.RpcId, out var action))
             {
@@ -134,7 +134,7 @@ namespace ET
                 }
 
                 this.requestCallbacks.Remove(rpcId);
-                Type responseType = OpcodeTypeComponent.Instance.GetResponseType(action.Request.GetType());
+                Type responseType = MsgIdTypeComponent.Instance.GetResponseType(action.Request.GetType());
                 IResponse response = (IResponse) Activator.CreateInstance(responseType);
                 response.Error = ErrorCode.ERR_Cancel;
                 action.Tcs.SetResult(response);
@@ -175,14 +175,14 @@ namespace ET
                 case NetServiceType.Inner:
                 {
                     (ushort opcode, MemoryStream stream) = MessageSerializeHelper.MessageToStream(0, message);
-                    OpcodeHelper.LogMsg(this.DomainZone(), opcode, message);
+                    MsgIdHelper.LogMsg(this.DomainZone(), opcode, message);
                     this.Send(0, stream);
                     break;
                 }
                 case NetServiceType.Outer:
                 {
                     (ushort opcode, MemoryStream stream) = MessageSerializeHelper.MessageToStream(message);
-                    OpcodeHelper.LogMsg(this.DomainZone(), opcode, message);
+                    MsgIdHelper.LogMsg(this.DomainZone(), opcode, message);
                     this.Send(0, stream);
                     break;
                 }
@@ -192,7 +192,7 @@ namespace ET
         public void Send(long actorId, IMessage message)
         {
             (ushort opcode, MemoryStream stream) = MessageSerializeHelper.MessageToStream(actorId, message);
-            OpcodeHelper.LogMsg(this.DomainZone(), opcode, message);
+            MsgIdHelper.LogMsg(this.DomainZone(), opcode, message);
             this.Send(actorId, stream);
         }
         

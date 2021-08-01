@@ -14,7 +14,7 @@ namespace ET
             await ConfigComponent.Instance.LoadAsync();
             ResourcesComponent.Instance.UnloadBundle("config.unity3d");
             
-            Game.Scene.AddComponent<OpcodeTypeComponent>();
+            Game.Scene.AddComponent<MsgIdTypeComponent>();
             Game.Scene.AddComponent<MessageDispatcherComponent>();
             
             Game.Scene.AddComponent<NetThreadComponent>();

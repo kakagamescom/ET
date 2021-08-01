@@ -11,7 +11,7 @@ namespace ET
             Game.Scene.AddComponent<ConfigComponent>();
             await ConfigComponent.Instance.LoadAsync();
             
-            Game.Scene.AddComponent<OpcodeTypeComponent>();
+            Game.Scene.AddComponent<MsgIdTypeComponent>();
             Game.Scene.AddComponent<MessageDispatcherComponent>();
             Game.Scene.AddComponent<NetThreadComponent>();
             Game.Scene.AddComponent<ZoneSceneManagerComponent>();

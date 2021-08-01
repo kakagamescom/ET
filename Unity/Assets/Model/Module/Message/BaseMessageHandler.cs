@@ -9,6 +9,12 @@ namespace ET
     [MessageHandler]
     public abstract class BaseMessageHandler<Message>: IMessageHandler where Message : class
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         protected abstract ETVoid Run(Session session, Message message);
 
         public void Handle(Session session, object msg)
@@ -16,7 +22,7 @@ namespace ET
             Message message = msg as Message;
             if (message == null)
             {
-                Log.Error($"message convert failed: {msg.GetType().Name} to {typeof (Message).Name}");
+                Log.Error($"message convert failed: {msg.GetType().Name} to {typeof(Message).Name}");
                 return;
             }
 
@@ -31,7 +37,7 @@ namespace ET
 
         public Type GetMessageType()
         {
-            return typeof (Message);
+            return typeof(Message);
         }
 
         public Type GetResponseType()
