@@ -2,8 +2,12 @@ using System;
 
 namespace ET
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="Message"></typeparam>
     [MessageHandler]
-    public abstract class AMHandler<Message>: IMHandler where Message : class
+    public abstract class BaseMessageHandler<Message>: IMessageHandler where Message : class
     {
         protected abstract ETVoid Run(Session session, Message message);
 
@@ -12,7 +16,7 @@ namespace ET
             Message message = msg as Message;
             if (message == null)
             {
-                Log.Error($"消息类型转换错误: {msg.GetType().Name} to {typeof (Message).Name}");
+                Log.Error($"message convert failed: {msg.GetType().Name} to {typeof (Message).Name}");
                 return;
             }
 
@@ -22,7 +26,7 @@ namespace ET
                 return;
             }
 
-            this.Run(session, message).Coroutine();
+            Run(session, message).Coroutine();
         }
 
         public Type GetMessageType()

@@ -3,7 +3,7 @@
 namespace ET
 {
 	[MessageHandler]
-	public class M2C_StopHandler : AMHandler<M2C_Stop>
+	public class M2C_StopHandler : BaseMessageHandler<M2C_Stop>
 	{
 		protected override async ETVoid Run(Session session, M2C_Stop message)
 		{

@@ -2,7 +2,7 @@ using System;
 
 namespace ET
 {
-    public class MessageProxy: IMHandler
+    public class MessageProxy: IMessageHandler
     {
         private readonly Type type;
         private readonly Action<Session, object> action;

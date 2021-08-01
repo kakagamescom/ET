@@ -45,7 +45,7 @@ namespace ET
 
             foreach (Type type in types)
             {
-                IMHandler iMHandler = Activator.CreateInstance(type) as IMHandler;
+                IMessageHandler iMHandler = Activator.CreateInstance(type) as IMessageHandler;
                 if (iMHandler == null)
                 {
                     Log.Error($"message handle {type.Name} 需要继承 IMHandler");
@@ -64,11 +64,11 @@ namespace ET
             }
         }
 
-        public static void RegisterHandler(this MessageDispatcherComponent self, ushort opcode, IMHandler handler)
+        public static void RegisterHandler(this MessageDispatcherComponent self, ushort opcode, IMessageHandler handler)
         {
             if (!self.Handlers.ContainsKey(opcode))
             {
-                self.Handlers.Add(opcode, new List<IMHandler>());
+                self.Handlers.Add(opcode, new List<IMessageHandler>());
             }
 
             self.Handlers[opcode].Add(handler);
@@ -76,14 +76,14 @@ namespace ET
 
         public static void Handle(this MessageDispatcherComponent self, Session session, ushort opcode, object message)
         {
-            List<IMHandler> actions;
+            List<IMessageHandler> actions;
             if (!self.Handlers.TryGetValue(opcode, out actions))
             {
                 Log.Error($"消息没有处理: {opcode} {message}");
                 return;
             }
 
-            foreach (IMHandler ev in actions)
+            foreach (IMessageHandler ev in actions)
             {
                 try
                 {

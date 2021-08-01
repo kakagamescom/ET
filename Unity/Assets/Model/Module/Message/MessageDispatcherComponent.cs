@@ -9,6 +9,6 @@ namespace ET
     {
         public static MessageDispatcherComponent Instance { get; set; }
 
-        public readonly Dictionary<ushort, List<IMHandler>> Handlers = new Dictionary<ushort, List<IMHandler>>();
+        public readonly Dictionary<ushort, List<IMessageHandler>> Handlers = new Dictionary<ushort, List<IMessageHandler>>();
     }
 }
