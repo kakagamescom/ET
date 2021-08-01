@@ -3,7 +3,7 @@
 namespace ET
 {
     /// <summary>
-    /// 
+    /// 组件工厂
     /// </summary>
     public static class EntityFactory
     {

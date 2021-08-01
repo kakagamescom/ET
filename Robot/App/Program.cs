@@ -16,7 +16,7 @@ namespace ET
                 Log.Error(e.ExceptionObject.ToString());
             };
             // 异步方法全部会回掉到主线程
-            SynchronizationContext.SetSynchronizationContext(ThreadSynchronizationContext.Instance);
+            SynchronizationContext.SetSynchronizationContext(ThreadSyncContext.Instance);
 			
             try
             {		

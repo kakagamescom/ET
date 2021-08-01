@@ -31,6 +31,7 @@ namespace ET
         [IgnoreDataMember]
         private static readonly Pool<Dictionary<long, Entity>> childrenPool = new Pool<Dictionary<long, Entity>>();
 
+        // 组件的身份, 全局唯一, 带有位置信息 
         [IgnoreDataMember]
         [BsonIgnore]
         public long InstanceId { get; set; }
@@ -723,9 +724,8 @@ namespace ET
             {
                 return null;
             }
-
-            Entity component;
-            if (!this.components.TryGetValue(type, out component))
+            
+            if (!this.components.TryGetValue(type, out Entity component))
             {
                 return null;
             }

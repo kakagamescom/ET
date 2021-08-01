@@ -1,9 +1,9 @@
-﻿﻿namespace ET
+﻿namespace ET
 {
     public class NetKcpComponent: Entity
     {
-        public AService Service;
-        
+        public BaseService Service;
+
         public IMessageDispatcher MessageDispatcher { get; set; }
     }
 }

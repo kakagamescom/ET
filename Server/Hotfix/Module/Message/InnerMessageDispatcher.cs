@@ -4,6 +4,9 @@ using System.Net;
 
 namespace ET
 {
+    /// <summary>
+    /// 网络消息分发器
+    /// </summary>
     public class InnerMessageDispatcher: IMessageDispatcher
     {
         public void Dispatch(Session session, MemoryStream memoryStream)
@@ -15,16 +18,14 @@ namespace ET
                 opcode = BitConverter.ToUInt16(memoryStream.GetBuffer(), Packet.OpcodeIndex);
                 Type type = null;
                 object message = null;
-#if SERVER   
-
+#if SERVER
                 // 内网收到外网消息，有可能是gateUnit消息，还有可能是gate广播消息
                 if (OpcodeTypeComponent.Instance.IsOutrActorMessage(opcode))
                 {
                     InstanceIdStruct instanceIdStruct = new InstanceIdStruct(actorId);
                     instanceIdStruct.Process = Game.Options.Process;
                     long realActorId = instanceIdStruct.ToLong();
-                    
-                    
+
                     Entity entity = Game.EventSystem.Get(realActorId);
                     if (entity == null)
                     {
@@ -33,7 +34,7 @@ namespace ET
                         Log.Error($"not found actor: {session.DomainScene().Name}  {opcode} {realActorId} {message}");
                         return;
                     }
-                    
+
                     if (entity is Session gateSession)
                     {
                         // 发送给客户端
@@ -43,8 +44,7 @@ namespace ET
                     }
                 }
 #endif
-                        
-                        
+
                 type = OpcodeTypeComponent.Instance.GetType(opcode);
                 message = MessageSerializeHelper.DeserializeFrom(opcode, type, memoryStream);
 
@@ -65,7 +65,7 @@ namespace ET
                         int fromProcess = instanceIdStruct.Process;
                         instanceIdStruct.Process = Game.Options.Process;
                         long realActorId = instanceIdStruct.ToLong();
-                        
+
                         void Reply(IActorResponse response)
                         {
                             Session replySession = NetInnerComponent.Instance.Get(fromProcess);

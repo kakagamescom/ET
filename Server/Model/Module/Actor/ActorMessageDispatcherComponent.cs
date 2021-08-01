@@ -10,6 +10,7 @@ namespace ET
     {
         public static ActorMessageDispatcherComponent Instance;
 
+        // actor消息处理器表
         public readonly Dictionary<Type, IMActorHandler> ActorMessageHandlers = new Dictionary<Type, IMActorHandler>();
     }
 }

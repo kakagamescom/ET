@@ -13,8 +13,8 @@ namespace ET
         public const int recvMaxIdleTime = 60000;
         public const int sendMaxIdleTime = 60000;
 
-        public ThreadSynchronizationContext ThreadSynchronizationContext;
+        public ThreadSyncContext ThreadSyncContext;
         
-        public HashSet<AService> Services = new HashSet<AService>();
+        public HashSet<BaseService> Services = new HashSet<BaseService>();
     }
 }

@@ -14,7 +14,7 @@ namespace ET
             NetInnerComponent.Instance = self;
             self.MessageDispatcher = new InnerMessageDispatcher();
             
-            self.Service = new TService(NetThreadComponent.Instance.ThreadSynchronizationContext, ServiceType.Inner);
+            self.Service = new TcpService(NetThreadComponent.Instance.ThreadSyncContext, ServiceType.Inner);
             self.Service.ErrorCallback += self.OnError;
             self.Service.ReadCallback += self.OnRead;
 
@@ -30,7 +30,7 @@ namespace ET
             NetInnerComponent.Instance = self;
             self.MessageDispatcher = new InnerMessageDispatcher();
 
-            self.Service = new TService(NetThreadComponent.Instance.ThreadSynchronizationContext, address, ServiceType.Inner);
+            self.Service = new TcpService(NetThreadComponent.Instance.ThreadSyncContext, address, ServiceType.Inner);
             self.Service.ErrorCallback += self.OnError;
             self.Service.ReadCallback += self.OnRead;
             self.Service.AcceptCallback += self.OnAccept;
@@ -87,7 +87,7 @@ namespace ET
         // 这个channelId是由CreateAcceptChannelId生成的
         public static void OnAccept(this NetInnerComponent self, long channelId, IPEndPoint ipEndPoint)
         {
-            Session session = EntityFactory.CreateWithParentAndId<Session, AService>(self, channelId, self.Service);
+            Session session = EntityFactory.CreateWithParentAndId<Session, BaseService>(self, channelId, self.Service);
             session.RemoteAddress = ipEndPoint;
             //session.AddComponent<SessionIdleCheckerComponent, int, int, int>(NetThreadComponent.checkInteral, NetThreadComponent.recvMaxIdleTime, NetThreadComponent.sendMaxIdleTime);
         }
@@ -103,7 +103,7 @@ namespace ET
 
         private static Session CreateInner(this NetInnerComponent self, long channelId, IPEndPoint ipEndPoint)
         {
-            Session session = EntityFactory.CreateWithParentAndId<Session, AService>(self, channelId, self.Service);
+            Session session = EntityFactory.CreateWithParentAndId<Session, BaseService>(self, channelId, self.Service);
 
             session.RemoteAddress = ipEndPoint;
 

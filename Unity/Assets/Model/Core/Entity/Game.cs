@@ -5,7 +5,7 @@ namespace ET
 {
     public static class Game
     {
-        public static ThreadSynchronizationContext ThreadSynchronizationContext => ThreadSynchronizationContext.Instance;
+        public static ThreadSyncContext ThreadSyncContext => ThreadSyncContext.Instance;
 
         public static TimeInfo TimeInfo => TimeInfo.Instance;
 
@@ -39,7 +39,7 @@ namespace ET
 
         public static void Update()
         {
-            ThreadSynchronizationContext.Update();
+            ThreadSyncContext.Update();
             TimeInfo.Update();
             EventSystem.Update();
         }

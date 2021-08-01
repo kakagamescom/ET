@@ -20,7 +20,7 @@ namespace ET
 
     public class NetInnerComponent: Entity
     {
-        public AService Service;
+        public BaseService Service;
 
         public static NetInnerComponent Instance;
 

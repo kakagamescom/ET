@@ -4,34 +4,37 @@ using System.Threading;
 
 namespace ET
 {
-    public class ThreadSynchronizationContext : SynchronizationContext
+    /// <summary>
+    /// 线程上下文, 线程间通信
+    /// </summary>
+    public class ThreadSyncContext: SynchronizationContext
     {
-        public static ThreadSynchronizationContext Instance { get; } = new ThreadSynchronizationContext(Thread.CurrentThread.ManagedThreadId);
+        public static ThreadSyncContext Instance { get; } = new ThreadSyncContext(Thread.CurrentThread.ManagedThreadId);
 
-        private readonly int threadId;
+        private readonly int _threadId;
 
         // 线程同步队列,发送接收socket回调都放到该队列,由poll线程统一执行
-        private readonly ConcurrentQueue<Action> queue = new ConcurrentQueue<Action>();
+        private readonly ConcurrentQueue<Action> _queue = new ConcurrentQueue<Action>();
 
-        private Action a;
+        private Action _action;
 
-        public ThreadSynchronizationContext(int threadId)
+        public ThreadSyncContext(int threadId)
         {
-            this.threadId = threadId;
+            _threadId = threadId;
         }
 
         public void Update()
         {
             while (true)
             {
-                if (!this.queue.TryDequeue(out a))
+                if (!_queue.TryDequeue(out _action))
                 {
                     return;
                 }
 
                 try
                 {
-                    a();
+                    _action();
                 }
                 catch (Exception e)
                 {
@@ -42,12 +45,12 @@ namespace ET
 
         public override void Post(SendOrPostCallback callback, object state)
         {
-            this.Post(() => callback(state));
+            Post(() => callback(state));
         }
-		
+
         public void Post(Action action)
         {
-            if (Thread.CurrentThread.ManagedThreadId == this.threadId)
+            if (Thread.CurrentThread.ManagedThreadId == _threadId)
             {
                 try
                 {
@@ -61,12 +64,12 @@ namespace ET
                 return;
             }
 
-            this.queue.Enqueue(action);
+            _queue.Enqueue(action);
         }
-		
+
         public void PostNext(Action action)
         {
-            this.queue.Enqueue(action);
+            _queue.Enqueue(action);
         }
     }
 }

@@ -76,11 +76,11 @@
     <Compile Include="..\..\Unity\Assets\Model\Module\NetworkTCP\PacketParser.cs">
       <Link>Module\NetworkTCP\PacketParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\Unity\Assets\Model\Module\NetworkTCP\TChannel.cs">
-      <Link>Module\NetworkTCP\TChannel.cs</Link>
+    <Compile Include="..\..\Unity\Assets\Model\Module\NetworkTCP\TcpChannel.cs">
+      <Link>Module\NetworkTCP\TcpChannel.cs</Link>
     </Compile>
-    <Compile Include="..\..\Unity\Assets\Model\Module\NetworkTCP\TService.cs">
-      <Link>Module\NetworkTCP\TService.cs</Link>
+    <Compile Include="..\..\Unity\Assets\Model\Module\NetworkTCP\TcpService.cs">
+      <Link>Module\NetworkTCP\TcpService.cs</Link>
     </Compile>
     <Compile Include="..\..\Unity\Assets\Model\Module\Numeric\INumericWatcher.cs">
       <Link>Module\Numeric\INumericWatcher.cs</Link>

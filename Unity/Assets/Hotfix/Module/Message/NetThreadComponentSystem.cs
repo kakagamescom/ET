@@ -10,7 +10,7 @@ namespace ET
         {
             NetThreadComponent.Instance = self;
             
-            self.ThreadSynchronizationContext = ThreadSynchronizationContext.Instance;
+            self.ThreadSyncContext = ThreadSyncContext.Instance;
         }
     }
 
@@ -19,7 +19,7 @@ namespace ET
     {
         public override void LateUpdate(NetThreadComponent self)
         {
-            foreach (AService service in self.Services)
+            foreach (BaseService service in self.Services)
             {
                 service.Update();
             }
@@ -42,10 +42,10 @@ namespace ET
         {
         }
 
-        public static void Add(this NetThreadComponent self, AService kService)
+        public static void Add(this NetThreadComponent self, BaseService kService)
         {
             // 这里要去下一帧添加，避免foreach错误
-            self.ThreadSynchronizationContext.PostNext(() =>
+            self.ThreadSyncContext.PostNext(() =>
             {
                 if (kService.IsDispose())
                 {
@@ -55,10 +55,10 @@ namespace ET
             });
         }
         
-        public static void Remove(this NetThreadComponent self, AService kService)
+        public static void Remove(this NetThreadComponent self, BaseService kService)
         {
             // 这里要去下一帧删除，避免foreach错误
-            self.ThreadSynchronizationContext.PostNext(() =>
+            self.ThreadSyncContext.PostNext(() =>
             {
                 if (kService.IsDispose())
                 {

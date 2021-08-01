@@ -45,17 +45,21 @@ namespace ET
         {
             self.ActorMessageHandlers.Clear();
 
-            var types = Game.EventSystem.GetTypes(typeof (ActorMessageHandlerAttribute));
+            // 加载所有使用ActorMessageHandler标签标记的类型
+            var types = Game.EventSystem.GetTypes(typeof(ActorMessageHandlerAttribute));
             foreach (Type type in types)
             {
+                // 创建actor消息处理器实例
                 object obj = Activator.CreateInstance(type);
 
+                // 检查
                 IMActorHandler imHandler = obj as IMActorHandler;
                 if (imHandler == null)
                 {
                     throw new Exception($"message handler not inherit IMActorHandler abstract class: {obj.GetType().FullName}");
                 }
 
+                // 添加到actor消息处理器表
                 Type messageType = imHandler.GetRequestType();
                 self.ActorMessageHandlers.Add(messageType, imHandler);
             }
@@ -64,8 +68,7 @@ namespace ET
         /// <summary>
         /// 分发actor消息
         /// </summary>
-        public static async ETTask Handle(
-            this ActorMessageDispatcherComponent self, Entity entity, object message, Action<IActorResponse> reply)
+        public static async ETTask Handle(this ActorMessageDispatcherComponent self, Entity entity, object message, Action<IActorResponse> reply)
         {
             if (!self.ActorMessageHandlers.TryGetValue(message.GetType(), out IMActorHandler handler))
             {
@@ -75,7 +78,7 @@ namespace ET
             await handler.Handle(entity, message, reply);
         }
 
-        public static bool TryGetHandler(this ActorMessageDispatcherComponent self,Type type, out IMActorHandler actorHandler)
+        public static bool TryGetHandler(this ActorMessageDispatcherComponent self, Type type, out IMActorHandler actorHandler)
         {
             return self.ActorMessageHandlers.TryGetValue(type, out actorHandler);
         }

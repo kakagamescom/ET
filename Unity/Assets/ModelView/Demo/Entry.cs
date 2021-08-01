@@ -11,7 +11,7 @@ namespace ET
 		{
 			try
 			{
-				SynchronizationContext.SetSynchronizationContext(ThreadSynchronizationContext.Instance);
+				SynchronizationContext.SetSynchronizationContext(ThreadSyncContext.Instance);
 
 				string[] assemblyNames = { "Unity.Model.dll", "Unity.Hotfix.dll", "Unity.ModelView.dll", "Unity.HotfixView.dll" };
 				
@@ -39,7 +39,7 @@ namespace ET
 
 		public void Update()
 		{
-			ThreadSynchronizationContext.Instance.Update();
+			ThreadSyncContext.Instance.Update();
 			Game.EventSystem.Update();
 		}
 

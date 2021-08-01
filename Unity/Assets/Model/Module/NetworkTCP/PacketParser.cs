@@ -3,99 +3,112 @@ using System.IO;
 
 namespace ET
 {
-	public enum ParserState
-	{
-		PacketSize,
-		PacketBody
-	}
+    /// <summary>
+    /// 解析状态
+    /// </summary>
+    public enum ParserState
+    {
+        PacketSize,
+        PacketBody
+    }
 
-	public class PacketParser
-	{
-		private readonly CircularBuffer buffer;
-		private int packetSize;
-		private ParserState state;
-		public AService service;
-		private readonly byte[] cache = new byte[8];
-		public const int InnerPacketSizeLength = 4;
-		public const int OuterPacketSizeLength = 2;
-		public MemoryStream MemoryStream;
+    /// <summary>
+    /// 数据包解析器
+    /// </summary>
+    public class PacketParser
+    {
+        private readonly CircularBuffer _buffer;
 
-		public PacketParser(CircularBuffer buffer, AService service)
-		{
-			this.buffer = buffer;
-			this.service = service;
-		}
+        private int _packetSize;
 
-		public bool Parse()
-		{
-			while (true)
-			{
-				switch (this.state)
-				{
-					case ParserState.PacketSize:
-					{
-						if (this.service.ServiceType == ServiceType.Inner)
-						{
-							if (this.buffer.Length < InnerPacketSizeLength)
-							{
-								return false;
-							}
+        private ParserState _state;
 
-							this.buffer.Read(this.cache, 0, InnerPacketSizeLength);
+        public BaseService service;
 
-							this.packetSize = BitConverter.ToInt32(this.cache, 0);
-							if (this.packetSize > ushort.MaxValue * 16 || this.packetSize < Packet.MinPacketSize)
-							{
-								throw new Exception($"recv packet size error, 可能是外网探测端口: {this.packetSize}");
-							}
-						}
-						else
-						{
-							if (this.buffer.Length < OuterPacketSizeLength)
-							{
-								return false;
-							}
+        private readonly byte[] _cache = new byte[8];
 
-							this.buffer.Read(this.cache, 0, OuterPacketSizeLength);
+        public const int InnerPacketSizeLength = 4;
 
-							this.packetSize = BitConverter.ToUInt16(this.cache, 0);
-							if (this.packetSize < Packet.MinPacketSize)
-							{
-								throw new Exception($"recv packet size error, 可能是外网探测端口: {this.packetSize}");
-							}
-						}
+        public const int OuterPacketSizeLength = 2;
 
-						this.state = ParserState.PacketBody;
-						break;
-					}
-					case ParserState.PacketBody:
-					{
-						if (this.buffer.Length < this.packetSize)
-						{
-							return false;
-						}
+        public MemoryStream MemoryStream;
 
-						MemoryStream memoryStream = MessageSerializeHelper.GetStream(this.packetSize);
-						this.buffer.Read(memoryStream, this.packetSize);
-						//memoryStream.SetLength(this.packetSize - Packet.MessageIndex);
-						this.MemoryStream = memoryStream;
+        public PacketParser(CircularBuffer buffer, BaseService service)
+        {
+            _buffer = buffer;
+            this.service = service;
+        }
 
-						if (this.service.ServiceType == ServiceType.Inner)
-						{
-							memoryStream.Seek(Packet.MessageIndex, SeekOrigin.Begin);
-						}
-						else
-						{
-							memoryStream.Seek(Packet.OpcodeLength, SeekOrigin.Begin);
-						}
+        public bool Parse()
+        {
+            while (true)
+            {
+                switch (_state)
+                {
+                    case ParserState.PacketSize:
+                    {
+                        if (this.service.ServiceType == ServiceType.Inner)
+                        {
+                            if (_buffer.Length < InnerPacketSizeLength)
+                            {
+                                return false;
+                            }
 
-						this.state = ParserState.PacketSize;
-						return true;
-					}
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
-			}
-		}
-	}
+                            _buffer.Read(_cache, 0, InnerPacketSizeLength);
+
+                            _packetSize = BitConverter.ToInt32(_cache, 0);
+                            if (_packetSize > ushort.MaxValue * 16 || _packetSize < Packet.MinPacketSize)
+                            {
+                                throw new Exception($"recv packet size error, 可能是外网探测端口: {_packetSize}");
+                            }
+                        }
+                        else
+                        {
+                            if (_buffer.Length < OuterPacketSizeLength)
+                            {
+                                return false;
+                            }
+
+                            _buffer.Read(_cache, 0, OuterPacketSizeLength);
+
+                            _packetSize = BitConverter.ToUInt16(_cache, 0);
+                            if (_packetSize < Packet.MinPacketSize)
+                            {
+                                throw new Exception($"recv packet size error, 可能是外网探测端口: {_packetSize}");
+                            }
+                        }
+
+                        _state = ParserState.PacketBody;
+                        break;
+                    }
+                    case ParserState.PacketBody:
+                    {
+                        if (_buffer.Length < _packetSize)
+                        {
+                            return false;
+                        }
+
+                        MemoryStream memoryStream = MessageSerializeHelper.GetStream(_packetSize);
+                        _buffer.Read(memoryStream, _packetSize);
+                        //memoryStream.SetLength(packetSize - Packet.MessageIndex);
+                        MemoryStream = memoryStream;
+
+                        if (this.service.ServiceType == ServiceType.Inner)
+                        {
+                            memoryStream.Seek(Packet.MessageIndex, SeekOrigin.Begin);
+                        }
+                        else
+                        {
+                            memoryStream.Seek(Packet.OpcodeLength, SeekOrigin.Begin);
+                        }
+
+                        _state = ParserState.PacketSize;
+                        return true;
+                    }
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+    }
 }
