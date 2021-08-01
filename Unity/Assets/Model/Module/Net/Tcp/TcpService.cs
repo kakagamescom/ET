@@ -10,7 +10,7 @@ namespace ET
     /// <summary>
     /// 
     /// </summary>
-    public sealed class TcpService: BaseService
+    public sealed class TcpService: NetService
     {
         private readonly Dictionary<long, TcpChannel> _idChannels = new Dictionary<long, TcpChannel>();
 
@@ -20,13 +20,13 @@ namespace ET
 
         public HashSet<long> NeedStartSend = new HashSet<long>();
 
-        public TcpService(ThreadSyncContext threadSyncContext, ServiceType serviceType)
+        public TcpService(ThreadSyncContext threadSyncContext, NetServiceType serviceType)
         {
             ServiceType = serviceType;
             ThreadSyncContext = threadSyncContext;
         }
 
-        public TcpService(ThreadSyncContext threadSyncContext, IPEndPoint ipEndPoint, ServiceType serviceType)
+        public TcpService(ThreadSyncContext threadSyncContext, IPEndPoint ipEndPoint, NetServiceType serviceType)
         {
             ServiceType = serviceType;
             ThreadSyncContext = threadSyncContext;

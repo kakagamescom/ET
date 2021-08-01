@@ -4,12 +4,18 @@ using System.Net;
 
 namespace ET
 {
+    /// <summary>
+    /// 通道类型
+    /// </summary>
     public enum ChannelType
     {
-        Connect,
-        Accept,
+        Transfer, // transfer channel
+        Accept,  // accept channel
     }
 
+    /// <summary>
+    /// 网络数据包
+    /// </summary>
     public struct Packet
     {
         public const int MinPacketSize = 2;
@@ -26,9 +32,9 @@ namespace ET
     }
 
     /// <summary>
-    /// 
+    /// 网络通道抽象基类
     /// </summary>
-    public abstract class BaseChannel: IDisposable
+    public abstract class NetChannel: IDisposable
     {
         public long Id;
 

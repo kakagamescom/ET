@@ -11,7 +11,7 @@ namespace ET
         {
             self.MessageDispatcher = new OuterMessageDispatcher();
             
-            self.Service = new TcpService(NetThreadComponent.Instance.ThreadSyncContext, ServiceType.Outer);
+            self.Service = new TcpService(NetThreadComponent.Instance.ThreadSyncContext, NetServiceType.Outer);
             self.Service.ErrorCallback += self.OnError;
             self.Service.ReadCallback += self.OnRead;
 
@@ -26,7 +26,7 @@ namespace ET
         {
             self.MessageDispatcher = new OuterMessageDispatcher();
             
-            self.Service = new TcpService(NetThreadComponent.Instance.ThreadSyncContext, address, ServiceType.Outer);
+            self.Service = new TcpService(NetThreadComponent.Instance.ThreadSyncContext, address, NetServiceType.Outer);
             self.Service.ErrorCallback += self.OnError;
             self.Service.ReadCallback += self.OnRead;
             self.Service.AcceptCallback += self.OnAccept;
@@ -83,7 +83,7 @@ namespace ET
         // 这个channelId是由CreateAcceptChannelId生成的
         public static void OnAccept(this NetKcpComponent self, long channelId, IPEndPoint ipEndPoint)
         {
-            Session session = EntityFactory.CreateWithParentAndId<Session, BaseService>(self, channelId, self.Service);
+            Session session = EntityFactory.CreateWithParentAndId<Session, NetService>(self, channelId, self.Service);
             session.RemoteAddress = ipEndPoint;
 
             session.AddComponent<SessionAcceptTimeoutComponent>();
@@ -100,7 +100,7 @@ namespace ET
         public static Session Create(this NetKcpComponent self, IPEndPoint realIPEndPoint)
         {
             long channelId = RandomHelper.RandInt64();
-            Session session = EntityFactory.CreateWithParentAndId<Session, BaseService>(self, channelId, self.Service);
+            Session session = EntityFactory.CreateWithParentAndId<Session, NetService>(self, channelId, self.Service);
             session.RemoteAddress = realIPEndPoint;
             session.AddComponent<SessionIdleCheckerComponent, int>(NetThreadComponent.checkInteral);
             

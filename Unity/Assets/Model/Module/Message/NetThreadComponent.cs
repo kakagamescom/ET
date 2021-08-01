@@ -18,6 +18,6 @@ namespace ET
 
         public ThreadSyncContext ThreadSyncContext;
         
-        public HashSet<BaseService> Services = new HashSet<BaseService>();
+        public HashSet<NetService> Services = new HashSet<NetService>();
     }
 }

@@ -19,7 +19,7 @@ namespace ET
     {
         public override void LateUpdate(NetThreadComponent self)
         {
-            foreach (BaseService service in self.Services)
+            foreach (NetService service in self.Services)
             {
                 service.Update();
             }
@@ -42,7 +42,7 @@ namespace ET
         {
         }
 
-        public static void Add(this NetThreadComponent self, BaseService kService)
+        public static void Add(this NetThreadComponent self, NetService kService)
         {
             // 这里要去下一帧添加，避免foreach错误
             self.ThreadSyncContext.PostNext(() =>
@@ -55,7 +55,7 @@ namespace ET
             });
         }
         
-        public static void Remove(this NetThreadComponent self, BaseService kService)
+        public static void Remove(this NetThreadComponent self, NetService kService)
         {
             // 这里要去下一帧删除，避免foreach错误
             self.ThreadSyncContext.PostNext(() =>

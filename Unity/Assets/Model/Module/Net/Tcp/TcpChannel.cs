@@ -8,7 +8,7 @@ namespace ET
     /// <summary>
     /// 封装Socket, 将回调push到主线程处理
     /// </summary>
-    public sealed class TcpChannel: BaseChannel
+    public sealed class TcpChannel: NetChannel
     {
         private readonly TcpService _service;
         
@@ -55,7 +55,8 @@ namespace ET
 
         public TcpChannel(long id, IPEndPoint ipEndPoint, TcpService service)
         {
-            ChannelType = ChannelType.Connect;
+            ChannelType = ChannelType.Transfer;
+            
             Id = id;
             _service = service;
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -71,18 +72,19 @@ namespace ET
             _service.ThreadSyncContext.PostNext(ConnectAsync);
         }
 
-        public TcpChannel(long id, Socket socket, TcpService service)
+        public TcpChannel(long id, Socket acceptSocket, TcpService service)
         {
             ChannelType = ChannelType.Accept;
+            
             Id = id;
             _service = service;
-            _socket = socket;
+            _socket = acceptSocket;
             _socket.NoDelay = true;
             _packetParser = new PacketParser(_recvBuffer, _service);
             _innArgs.Completed += OnComplete;
             _outArgs.Completed += OnComplete;
 
-            RemoteAddress = (IPEndPoint)socket.RemoteEndPoint;
+            RemoteAddress = (IPEndPoint)acceptSocket.RemoteEndPoint;
             _isConnected = true;
             _isSending = false;
 
@@ -123,7 +125,7 @@ namespace ET
 
             switch (_service.ServiceType)
             {
-                case ServiceType.Inner:
+                case NetServiceType.Inner:
                 {
                     int messageSize = (int)(stream.Length - stream.Position);
                     if (messageSize > ushort.MaxValue * 16)
@@ -139,7 +141,7 @@ namespace ET
                     _sendBuffer.Write(stream.GetBuffer(), (int)stream.Position, (int)(stream.Length - stream.Position));
                     break;
                 }
-                case ServiceType.Outer:
+                case NetServiceType.Outer:
                 {
                     ushort messageSize = (ushort)(stream.Length - stream.Position);
 

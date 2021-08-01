@@ -2,7 +2,7 @@
 {
     public class NetKcpComponent: Entity
     {
-        public BaseService Service;
+        public NetService Service;
 
         public IMessageDispatcher MessageDispatcher { get; set; }
     }

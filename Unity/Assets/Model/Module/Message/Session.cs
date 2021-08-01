@@ -7,9 +7,9 @@ using System.Net;
 namespace ET
 {
     [ObjectSystem]
-    public class SessionAwakeSystem: AwakeSystem<Session, BaseService>
+    public class SessionAwakeSystem: AwakeSystem<Session, NetService>
     {
-        public override void Awake(Session self, BaseService aService)
+        public override void Awake(Session self, NetService aService)
         {
             self.Awake(aService);
         }
@@ -29,7 +29,7 @@ namespace ET
             }
         }
 
-        public BaseService AService;
+        public NetService AService;
         
         private static int RpcId
         {
@@ -57,7 +57,7 @@ namespace ET
             set;
         }
 
-        public void Awake(BaseService aService)
+        public void Awake(NetService aService)
         {
             this.AService = aService;
             long timeNow = TimeHelper.ClientNow();
@@ -172,14 +172,14 @@ namespace ET
         {
             switch (this.AService.ServiceType)
             {
-                case ServiceType.Inner:
+                case NetServiceType.Inner:
                 {
                     (ushort opcode, MemoryStream stream) = MessageSerializeHelper.MessageToStream(0, message);
                     OpcodeHelper.LogMsg(this.DomainZone(), opcode, message);
                     this.Send(0, stream);
                     break;
                 }
-                case ServiceType.Outer:
+                case NetServiceType.Outer:
                 {
                     (ushort opcode, MemoryStream stream) = MessageSerializeHelper.MessageToStream(message);
                     OpcodeHelper.LogMsg(this.DomainZone(), opcode, message);

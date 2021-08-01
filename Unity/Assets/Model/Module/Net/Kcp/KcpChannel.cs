@@ -16,7 +16,7 @@ namespace ET
     /// <summary>
     /// KCP Channel
     /// </summary>
-    public class KcpChannel: BaseChannel
+    public class KcpChannel: NetChannel
     {
         public static readonly Dictionary<IntPtr, KcpChannel> KcpPtrChannels = new Dictionary<IntPtr, KcpChannel>();
 
@@ -33,6 +33,7 @@ namespace ET
         public readonly uint CreateTime;
 
         public uint LocalConn { get; set; }
+        
         public uint RemoteConn { get; set; }
 
         private readonly byte[] _sendCache = new byte[2 * 1024];
@@ -53,13 +54,13 @@ namespace ET
             KcpPtrChannels.Add(kcp, this);
             switch (Service.ServiceType)
             {
-                case ServiceType.Inner:
+                case NetServiceType.Inner:
                     Kcp.KcpNodelay(kcp, 1, 10, 2, 1);
                     Kcp.KcpWndsize(kcp, ushort.MaxValue, ushort.MaxValue);
                     Kcp.KcpSetmtu(kcp, 1400); // 默认1400
                     Kcp.KcpSetminrto(kcp, 30);
                     break;
-                case ServiceType.Outer:
+                case NetServiceType.Outer:
                     Kcp.KcpNodelay(kcp, 1, 10, 2, 1);
                     Kcp.KcpWndsize(kcp, 256, 256);
                     Kcp.KcpSetmtu(kcp, 470);
@@ -74,7 +75,7 @@ namespace ET
             LocalConn = localConn;
 
             Id = id;
-            ChannelType = ChannelType.Connect;
+            ChannelType = ChannelType.Transfer;
 
             Log.Info($"channel create: {Id} {LocalConn} {remoteEndPoint} {ChannelType}");
 
@@ -220,7 +221,7 @@ namespace ET
 
                 switch (ChannelType)
                 {
-                    case ChannelType.Connect:
+                    case ChannelType.Transfer:
                         Connect();
                         break;
                 }
@@ -341,10 +342,10 @@ namespace ET
 
                 switch (Service.ServiceType)
                 {
-                    case ServiceType.Inner:
+                    case NetServiceType.Inner:
                         _readMemory.Seek(Packet.ActorIdLength + Packet.OpcodeLength, SeekOrigin.Begin);
                         break;
-                    case ServiceType.Outer:
+                    case NetServiceType.Outer:
                         _readMemory.Seek(Packet.OpcodeLength, SeekOrigin.Begin);
                         break;
                 }
@@ -401,7 +402,7 @@ namespace ET
             MemoryStream memoryStream = kcpWaitPacket.MemoryStream;
             int count = (int)(memoryStream.Length - memoryStream.Position);
 
-            if (Service.ServiceType == ServiceType.Inner)
+            if (Service.ServiceType == NetServiceType.Inner)
             {
                 memoryStream.GetBuffer().WriteTo(0, kcpWaitPacket.ActorId);
             }
@@ -445,10 +446,10 @@ namespace ET
                 int maxWaitSize = 0;
                 switch (Service.ServiceType)
                 {
-                    case ServiceType.Inner:
+                    case NetServiceType.Inner:
                         maxWaitSize = Kcp.InnerMaxWaitSize;
                         break;
-                    case ServiceType.Outer:
+                    case NetServiceType.Outer:
                         maxWaitSize = Kcp.OuterMaxWaitSize;
                         break;
                     default:
